@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOS 聯盟公告小工具</title>
+<style>
+:root{
+  --bg:#f2eee8;
+  --panel:#fbfaf7;
+  --panel-2:#f6f3ee;
+  --input:#ffffff;
+  --preview:#f7f4ef;
+  --ink:#3f4542;
+  --muted:#7c817e;
+  --line:#d8d2c9;
+  --accent:#99a89a;
+  --accent-deep:#7f9182;
+  --accent-soft:#eef1ec;
+  --danger-bg:#fff9f8;
+  --danger-line:#d9bbb7;
+  --danger-text:#8b5c58;
+  --shadow:0 10px 30px rgba(61,66,63,.08);
+  --radius:18px;
+  --radius-sm:12px;
+  --fs-xl:22px;
+  --fs-section:18px;
+  --fs-item:16px;
+  --fs-body:14px;
+  --fs-note:12px;
+  --sidebar-width:300px;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  margin:0;
+  color:var(--ink);
+  background:var(--bg);
+  font-family:Inter,"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:var(--fs-body);
+  transition:background .2s ease,color .2s ease;
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.app{min-height:100vh;display:grid;grid-template-rows:auto auto 1fr}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 22px;background:var(--panel);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:30;box-shadow:0 2px 12px rgba(30,35,32,.04)
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:900;letter-spacing:.5px}
+.brand h1{font-size:var(--fs-xl);margin:0;font-weight:850;line-height:1.15}
+.brand p{font-size:var(--fs-note);margin:4px 0 0;color:var(--muted)}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.module-nav{
+  display:flex;gap:8px;padding:10px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);
+  overflow:auto;position:sticky;top:73px;z-index:25
+}
+.module-tab{
+  white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  border-radius:999px;padding:8px 14px;font-weight:800;font-size:var(--fs-body)
+}
+.module-tab:hover{border-color:var(--accent);color:var(--ink)}
+.module-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.layout{display:grid;grid-template-columns:var(--sidebar-width) 8px minmax(360px,1fr) 410px;gap:10px;padding:16px;min-height:0}
+.column-resizer{width:8px;min-width:8px;cursor:col-resize;position:relative;touch-action:none;user-select:none}
+.column-resizer::before{content:"";position:absolute;left:3px;top:18px;bottom:18px;width:2px;border-radius:999px;background:var(--line);transition:.15s ease}
+.column-resizer:hover::before,.column-resizer.resizing::before{background:var(--accent);width:4px;left:2px}
+body.resizing-columns{cursor:col-resize;user-select:none}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);min-height:0}
+.sidebar,.library,.preview-panel{display:flex;flex-direction:column;max-height:calc(100vh - 142px);min-width:0}
+.panel-head{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-head h2{font-size:var(--fs-section);margin:0}
+.subtle{color:var(--muted);font-size:var(--fs-note);line-height:1.45}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:8px 11px;font-weight:750;font-size:var(--fs-body);transition:.16s ease}
+.btn:hover{transform:translateY(-1px);border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-deep)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger-text);border-color:var(--danger-line);background:var(--danger-bg)}
+.btn.small{padding:6px 8px;font-size:var(--fs-note)}
+.btn.admin-active{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.lock-note{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);font-size:var(--fs-note);color:var(--muted);line-height:1.55}
+.viewer-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:var(--fs-note);font-weight:800;color:var(--muted)}
+.icon-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--muted);display:grid;place-items:center}
+.icon-btn:hover{color:var(--ink);border-color:var(--accent)}
+.item-list{overflow:auto;padding:10px;flex:1}
+.item-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:8px;padding:11px 9px;border:1px solid transparent;border-radius:12px;margin-bottom:5px;background:transparent;user-select:none}
+.item-row.viewer-layout{grid-template-columns:minmax(0,1fr) auto}
+.item-row:hover{background:var(--panel-2)}
+.item-row.active{background:var(--accent-soft);border-color:var(--accent)}
+.drag{color:var(--muted);opacity:.65;cursor:grab;font-size:16px;line-height:1}.drag:active{cursor:grabbing}
+.item-main{min-width:0;cursor:pointer}
+.item-en{font-weight:850;font-size:var(--fs-item);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-zh{margin-top:3px;color:var(--muted);font-size:var(--fs-note);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:var(--fs-note);font-weight:800}
+.sidebar-foot{border-top:1px solid var(--line);padding:12px;display:grid;gap:8px}
+.backup-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.library-content{padding:18px;overflow:auto;flex:1}
+.item-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.item-title-row h3{margin:0;font-size:calc(var(--fs-section) + 2px);line-height:1.2}
+.item-title-row .zh-name{margin-top:5px;color:var(--muted);font-size:var(--fs-body)}
+.row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 16px}
+.schedule-box{background:var(--accent-soft);border:1px solid var(--line);border-radius:14px;padding:12px 13px}
+.schedule-box label{display:block;font-size:var(--fs-note);font-weight:850;margin-bottom:6px}
+.input,.textarea,.select,.preview-editor{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--input);color:var(--ink);padding:9px 10px;outline:none}
+.input:focus,.textarea:focus,.select:focus,.preview-editor:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.textarea{resize:vertical;min-height:82px}
+.sentence-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}
+.sentence-toolbar .label{font-size:var(--fs-note);color:var(--muted);font-weight:800}
+.sentence-list{display:grid;gap:10px}
+.sentence-card{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:10px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--input);transition:.15s ease}
+.sentence-card.viewer-layout{grid-template-columns:minmax(0,1fr) auto}
+.sentence-body{min-width:0}
+.sentence-card:hover{border-color:var(--accent);box-shadow:0 5px 16px rgba(61,66,63,.05)}
+.sentence-card.selected{background:var(--accent-soft);border-color:var(--accent)}
+.sentence-body{cursor:pointer}
+.sentence-zh{font-size:var(--fs-body);line-height:1.55;font-weight:750;white-space:pre-wrap}
+.sentence-en{font-size:var(--fs-body);line-height:1.55;color:var(--muted);margin-top:6px;white-space:pre-wrap}
+.sentence-tools{display:flex;gap:5px;align-items:center}
+.check{width:19px;height:19px;accent-color:var(--accent-deep);cursor:pointer;margin-top:2px}
+.empty{border:1px dashed var(--line);border-radius:14px;color:var(--muted);padding:30px 16px;text-align:center;font-size:var(--fs-body)}
+.preview-controls{padding:14px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.control-grid{display:grid;grid-template-columns:1fr 120px;gap:9px}
+.control label{display:block;font-size:var(--fs-note);color:var(--muted);font-weight:800;margin-bottom:5px}
+.preview-wrap{padding:14px;overflow:auto;flex:1;display:flex;flex-direction:column}
+.preview-editor{margin:0;min-height:330px;flex:1;background:var(--preview);resize:vertical;white-space:pre-wrap;word-break:break-word;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:var(--fs-body);line-height:1.7}
+.preview-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.preview-actions .wide{grid-column:1/-1}
+.meta-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;color:var(--muted);font-size:var(--fs-note)}
+.manual-note{display:none;padding:8px 10px;border-radius:10px;background:var(--accent-soft);color:var(--muted);font-size:var(--fs-note);line-height:1.45}
+.manual-note.show{display:block}
+dialog{border:none;border-radius:18px;padding:0;width:min(560px,calc(100vw - 28px));box-shadow:0 24px 80px rgba(42,45,43,.28);background:var(--panel);color:var(--ink)}
+dialog::backdrop{background:rgba(45,48,46,.35);backdrop-filter:blur(2px)}
+.modal-head{padding:17px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.modal-head h3{font-size:var(--fs-section);margin:0}
+.modal-body{padding:18px;display:grid;gap:13px}
+.field label{display:block;font-size:var(--fs-note);font-weight:800;margin-bottom:6px}
+.check-row{display:flex;align-items:center;gap:8px;font-size:var(--fs-body)}
+.modal-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+.settings-section{display:grid;gap:10px}
+.settings-section h4{margin:0;font-size:var(--fs-item)}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.theme-option{border:1px solid var(--line);background:var(--panel-2);border-radius:12px;padding:10px;text-align:left;display:grid;gap:7px}
+.theme-option.selected{outline:2px solid var(--accent);outline-offset:1px}
+.theme-swatch{height:34px;border-radius:8px;border:1px solid rgba(128,128,128,.18);display:grid;grid-template-columns:1.3fr .8fr .8fr;overflow:hidden}
+.theme-swatch span:nth-child(2){opacity:.8}.theme-swatch span:nth-child(3){opacity:.6}
+.font-grid{display:grid;gap:8px}
+.font-row{display:grid;grid-template-columns:1fr 96px;align-items:center;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.font-row:last-child{border-bottom:none}
+.font-name{font-weight:800}.font-use{color:var(--muted);font-size:var(--fs-note);margin-top:2px}
+.number-input{display:flex;align-items:center;gap:6px}.number-input input{text-align:center}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);background:var(--ink);color:var(--panel);padding:9px 13px;border-radius:999px;font-size:var(--fs-note);font-weight:800;opacity:0;pointer-events:none;transition:.2s ease;z-index:99}.toast.show{opacity:1;transform:translate(-50%,0)}
+.file-input{display:none}.hidden{display:none!important}.dragging{opacity:.42}.drop-target{outline:2px dashed var(--accent);outline-offset:2px}
+.article-card{border:1px solid var(--line);border-radius:16px;background:var(--input);overflow:hidden}
+.article-block{padding:16px 17px}
+.article-block+.article-block{border-top:1px solid var(--line)}
+.article-label{font-size:var(--fs-note);font-weight:850;color:var(--muted);margin-bottom:8px}
+.article-text{font-size:var(--fs-body);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.article-text.en{color:var(--ink)}
+.article-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:1180px){.layout{grid-template-columns:270px 1fr;gap:16px}.column-resizer{display:none}.preview-panel{grid-column:1/-1;max-height:none}.sidebar,.library{max-height:calc(100vh - 142px)}}
+@media(max-width:760px){.topbar{align-items:flex-start;padding:14px}.brand h1{font-size:calc(var(--fs-xl) - 2px)}.top-actions{justify-content:flex-end}.module-nav{top:72px}.layout{grid-template-columns:1fr;padding:10px}.sidebar,.library,.preview-panel{max-height:none}.sidebar{min-height:420px}.item-list{max-height:420px}.library-content{overflow:visible}.control-grid,.schedule-grid{grid-template-columns:1fr}.theme-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">WOS</div>
+      <div><h1>聯盟公告小工具</h1><p>單機模式 · 資料與外觀設定只保存在這台裝置</p></div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="settingsBtn">⚙ 設定</button>
+      <button class="btn" id="exportBtn">匯出備份</button>
+      <button class="btn" id="importBtn">匯入備份</button>
+      <a class="btn" href="https://www.wosrewards.com/" target="_blank" rel="noopener noreferrer">🎁 WOS Rewards</a>
+      <a class="btn" href="https://www.whiteoutsurvival.wiki/" target="_blank" rel="noopener noreferrer">📖 WOS Wiki</a>
+      <button class="btn" id="adminBtn">🔒 管理者登入</button>
+      <input id="importFile" class="file-input" type="file" accept=".json,application/json">
+    </div>
+  </header>
+
+  <nav class="module-nav" id="moduleNav"></nav>
+
+  <main class="layout">
+    <aside class="panel sidebar">
+      <div class="panel-head">
+        <div><h2 id="listHeading">活動列表</h2><div class="subtle" id="itemCount"></div></div>
+        <button class="btn small primary" id="addItemBtn">＋活動</button>
+      </div>
+      <div class="item-list" id="itemList"></div>
+      <div class="sidebar-foot">
+        <div class="subtle">管理者登入後可拖曳 ≡ 調整資料順序；欄位間直線可調整列表寬度。</div>
+        <div class="backup-row">
+          <button class="btn small" id="resetBtn">還原預設</button>
+          <button class="btn small" id="clearDataBtn">清空所有資料</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="column-resizer" id="columnResizer" title="拖曳調整列表寬度" aria-label="拖曳調整列表寬度"></div>
+
+    <section class="panel library">
+      <div class="panel-head">
+        <div><h2 id="libraryHeading">句子選擇</h2><div class="subtle" id="librarySubtle">中文只供閱讀；總公告只輸出英文。</div></div>
+      </div>
+      <div class="library-content" id="libraryContent"></div>
+    </section>
+
+    <aside class="panel preview-panel">
+      <div class="panel-head">
+        <div><h2>總公告</h2><div class="subtle">可直接編輯 · English only</div></div>
+      </div>
+      <div class="preview-controls" id="previewControls">
+        <div class="control-grid">
+          <div class="control"><label for="titleInput">公告標題</label><input class="input" id="titleInput"></div>
+          <div class="control"><label for="bulletSelect">項目符號</label><select class="select" id="bulletSelect"><option value="▸">▸</option><option value="•">•</option><option value="◆">◆</option><option value="⚠️">⚠️</option><option value="🔥">🔥</option><option value="⭐">⭐</option><option value="">無</option></select></div>
+        </div>
+        <div class="manual-note" id="manualNote">你已手動編輯總公告。勾選／取消、日期與時間變更仍會同步，並盡量保留你的手動文字。</div>
+      </div>
+      <div class="preview-wrap">
+        <textarea class="preview-editor" id="previewEditor" spellcheck="false" placeholder="尚未選擇公告句子"></textarea>
+        <div class="preview-actions">
+          <button class="btn primary" id="copyBtn">複製公告</button>
+          <button class="btn" id="clearAnnouncementBtn">清空公告</button>
+          <button class="btn wide" id="refreshAnnouncementBtn">↻ 依選擇重新產生</button>
+        </div>
+        <div class="meta-line"><span id="selectedMeta">已選 0 個項目</span><span id="saveMeta">已儲存於本機</span></div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<dialog id="itemDialog">
+  <form id="itemForm">
+    <div class="modal-head"><h3 id="itemDialogTitle">新增活動</h3><button type="button" class="icon-btn" data-close-dialog="itemDialog">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label for="itemEn" id="itemEnLabel">英文活動名稱（公告會使用這個名稱）</label><input class="input" id="itemEn" required></div>
+      <div class="field"><label for="itemZh" id="itemZhLabel">中文活動名稱</label><input class="input" id="itemZh"></div>
+      <label class="check-row" id="dateOptionRow"><input type="checkbox" id="itemDateEnabled"><span>這個項目需要「本次日期」欄位</span></label>
+      <label class="check-row" id="timeOptionRow"><input type="checkbox" id="itemTimeEnabled"><span>這個項目需要「本次時間」欄位</span></label>
+      <div class="subtle" id="scheduleHelp">勾選後，句子頁面會出現日期／時間欄；留白時不會輸出。</div>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="itemDialog">取消</button><button type="submit" class="btn primary">儲存</button></div>
+  </form>
+</dialog>
+
+<dialog id="sentenceDialog">
+  <form id="sentenceForm">
+    <div class="modal-head"><h3 id="sentenceDialogTitle">新增句子</h3><button type="button" class="icon-btn" data-close-dialog="sentenceDialog">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label for="sentenceZh" id="sentenceZhLabel">中文內容（只供閱讀）</label><textarea class="textarea" id="sentenceZh"></textarea></div>
+      <div class="field"><label for="sentenceEn" id="sentenceEnLabel">英文內容（會輸出到公告）</label><textarea class="textarea" id="sentenceEn" required></textarea></div>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="sentenceDialog">取消</button><button type="submit" class="btn primary">儲存</button></div>
+  </form>
+</dialog>
+
+<dialog id="settingsDialog">
+  <form id="settingsForm">
+    <div class="modal-head"><h3>設定</h3><button type="button" class="icon-btn" data-close-dialog="settingsDialog">×</button></div>
+    <div class="modal-body">
+      <section class="settings-section">
+        <div><h4>背景與整體色系</h4><div class="subtle">選擇主題後，背景、卡片、按鈕、邊框與選取狀態會自動搭配。</div></div>
+        <div class="theme-grid" id="themeGrid"></div>
+      </section>
+      <section class="settings-section">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><div><h4>字體大小</h4><div class="subtle">五種文字層級可分別調整。</div></div><button type="button" class="btn small" id="resetFontsBtn">恢復預設</button></div>
+        <div class="font-grid" id="fontGrid"></div>
+      </section>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="settingsDialog">取消</button><button type="submit" class="btn primary">套用設定</button></div>
+  </form>
+</dialog>
+
+<dialog id="adminDialog">
+  <form id="adminForm">
+    <div class="modal-head"><h3 id="adminDialogTitle">管理者登入</h3><button type="button" class="icon-btn" data-close-dialog="adminDialog">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label for="adminPassword">管理密碼</label><input class="input" id="adminPassword" type="password" autocomplete="current-password" required></div>
+      <div class="field hidden" id="adminConfirmRow"><label for="adminPasswordConfirm">再次輸入密碼</label><input class="input" id="adminPasswordConfirm" type="password" autocomplete="new-password"></div>
+      <div class="lock-note" id="adminHelp">目前是單機版的本機管理鎖，用來先測試「訪客唯讀／管理者編輯」流程。正式部署到 GitHub Pages 時，仍需接 Supabase／Firebase 等後端驗證；請勿把前端密碼當成真正的線上安全機制。</div>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="adminDialog">取消</button><button type="submit" class="btn primary" id="adminSubmitBtn">登入</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_MODULES = {"event":{"label":"活動公告","singular":"活動","title":"Today’s Events","items":[{"id":"icefire-prediction","zh":"冰火聯賽","en":"Icefire Prediction","timeEnabled":false,"sentences":[{"id":"icefire-1","zh":"投票截止時間為：UTC 10:00／UTC 16:00／UTC 22:00。今天有 3 次預測。","en":"Prediction deadlines:\nUTC 10:00 / UTC 16:00 / UTC 22:00\nThere are 3 prediction rounds today."},{"id":"icefire-2","zh":"記得報名！","en":"Remember to register!"}],"dateEnabled":false},{"id":"crazy-joe","zh":"瘋狂喬伊","en":"Crazy Joe","timeEnabled":true,"sentences":[{"id":"crazy-1","zh":"保持在線！","en":"Please stay online!"}],"dateEnabled":false},{"id":"stronghold-fortress","zh":"堡壘與要塞","en":"Stronghold & Fortress","timeEnabled":true,"sentences":[{"id":"sf-1","zh":"活動時間已加到行事曆，請確認時程並注意時間。","en":"The event times have been added to the calendar.\nPlease check the schedule and pay attention to the times."},{"id":"sf-2","zh":"UTC 14:00 的堡壘會在打熊活動之後進行。","en":"The UTC 14:00 fortress will be after the Bear Trap."},{"id":"sf-3","zh":"兵力上限：60,000。","en":"Troop limit: 60,000"},{"id":"sf-4","zh":"活動時間都在行事曆上，請確認時程！","en":"Event times are on the calendar. Please check the schedule!"}],"dateEnabled":false},{"id":"svs-battle","zh":"SVS－戰爭階段","en":"SVS-Battle Phase","timeEnabled":false,"sentences":[{"id":"svs-1","zh":"記得開防護罩！","en":"Remember to activate your shield!"}],"dateEnabled":false},{"id":"mercenary-prestige","zh":"傭兵榮耀","en":"Mercenary Prestige","timeEnabled":false,"sentences":[{"id":"mp-1","zh":"盡可能分享「求助」，讓盟友拿獎勵。","en":"Please share as many Help Requests as possible so your allies can earn rewards."}],"dateEnabled":false},{"id":"phaethon-captain","zh":"傭兵頭目","en":"Phaethon Captain","timeEnabled":true,"sentences":[{"id":"pc-1","zh":"7/19 UTC 14:30 — Lv. 1–3；7/20 UTC 01:00 — Lv. 4–5。","en":"• 7/19 UTC 14:30 — Lv. 1–3\n• 7/20 UTC 01:00 — Lv. 4–5"}],"dateEnabled":false},{"id":"tal","zh":"雪域聯賽（TAL）","en":"TAL","timeEnabled":true,"sentences":[{"id":"tal-1","zh":"國家隊：7/20 UTC 14:00；PNK：7/20 UTC 14:00；記得押注獲勝隊伍！","en":"State Team: 7/20 UTC 14:00\nPNK: 7/20 UTC 14:00\nRemember to bet on the winner!"}],"dateEnabled":false},{"id":"tundra-trading","zh":"雪原貿易戰","en":"Tundra Trading Station","timeEnabled":false,"sentences":[{"id":"tts-1","zh":"交換你喜歡的道具。","en":"Exchange for the items you want."}],"dateEnabled":false},{"id":"tundra-route","zh":"雪原商隊","en":"Tundra Trade Route","timeEnabled":false,"sentences":[{"id":"ttr-1","zh":"協助護送可以得到額外寶箱，善用子帳號！","en":"Help escort convoys to earn extra chests.\nMake good use of your alt accounts!"},{"id":"ttr-2","zh":"派送強大的部隊協助盟友。","en":"Send strong troops to reinforce your allies."}],"dateEnabled":false},{"id":"tundra-trek","zh":"雪原遊歷","en":"Tundra Trek","timeEnabled":false,"sentences":[{"id":"tt-1","zh":"今天有新專家。更新結束後再使用遊歷次數。","en":"A new expert will be available today.\nSave your Tundra Trek attempts until after the update."}],"dateEnabled":false},{"id":"alliance-championship","zh":"聯盟爭霸賽","en":"Alliance Championship","timeEnabled":true,"sentences":[{"id":"ac-1","zh":"往返分盟的成員，記得在 UTC 23:00 之前登錄並待在 PNK。","en":"Members moving between alliances, please register and stay in PNK before UTC 23:00."},{"id":"ac-2","zh":"UTC 12 發送結算獎勵，記得待在 PNK。","en":"Rewards will be sent at UTC 12. Remember to stay in PNK!"},{"id":"ac-3","zh":"記得在有 BUFF 時報名聯盟爭霸賽。","en":"Remember to register for the Alliance Championship while the buff is active."},{"id":"ac-4","zh":"有 BUFF 時報名！","en":"Register while the buff is active!"}],"dateEnabled":false},{"id":"journey-light","zh":"逐光之旅","en":"Journey of Light","timeEnabled":false,"sentences":[{"id":"jl-1","zh":"準時讓飛機起飛，哈哈。","en":"Make sure the plane takes off on time lol."}],"dateEnabled":false},{"id":"frostfive-mine","zh":"燃霜礦場","en":"Frostfive Mine","timeEnabled":false,"sentences":[{"id":"fm-1","zh":"確認凱西的技能是否升級，再進入礦場。","en":"Check whether Kathy’s skill has been upgraded before entering the mine."}],"dateEnabled":false},{"id":"dreamscape-memory","zh":"夢境巡憶","en":"Dreamscape Memory","timeEnabled":false,"sentences":[{"id":"dm-1","zh":"每天完成一次 Dreamscape Fusion。","en":"Complete Dreamscape Fusion once every day."},{"id":"dm-2","zh":"今天是最後一天！","en":"Today is the last day of the event!"}],"dateEnabled":false},{"id":"ka","zh":"KA","en":"KA","timeEnabled":false,"sentences":[{"id":"ka-1","zh":"請閱讀 Liv 傳送的群組消息。","en":"Please read the group message sent by Liv."}],"dateEnabled":false},{"id":"alliance-mobilization","zh":"聯盟總動員","en":"Alliance Mobilization","timeEnabled":false,"sentences":[{"id":"am-1","zh":"配合軍備競演、英雄殿堂、黎明的願景完成總動員任務。","en":"Complete Mobilization missions together with Officer Project, Vision of Dawn and Twin Star Adventure."},{"id":"am-2","zh":"如果需要特定任務，請在聯盟聊天室提出。","en":"If you need a specific mission, please request it in the alliance chat!"}],"dateEnabled":false},{"id":"twin-star","zh":"雙星冒險","en":"Twin Star Adventure","timeEnabled":false,"sentences":[{"id":"tsa-1","zh":"完成組隊！盡可能找同時上線的隊友。","en":"Form your team! Try to team up with players who are online at the same time."}],"dateEnabled":false},{"id":"canyon-clash","zh":"峽谷會戰","en":"Canyon Clash","timeEnabled":true,"sentences":[{"id":"cc-1","zh":"投票你可以參與的時間。","en":"Vote for the time you can attend!"},{"id":"cc-2","zh":"軍團 1：UTC 14:00；軍團 2：UTC 02:00。","en":"Legion 1: UTC 14:00\nLegion 2: UTC 02:00"},{"id":"cc-3","zh":"投票你有空的時間！","en":"Vote for your available time!"}],"dateEnabled":false},{"id":"foundry-battle","zh":"兵器工廠","en":"Foundry Battle","timeEnabled":true,"sentences":[{"id":"fb-1","zh":"請在可以參加的時段按下參加按鈕。","en":"Please tap Battle Request for the time slot you can attend."},{"id":"fb-2","zh":"軍團 1：UTC 14:00；軍團 2：UTC 02:00。","en":"Legion 1: UTC 14:00\nLegion 2: UTC 02:00"}],"dateEnabled":false},{"id":"heroes-mission","zh":"英雄的使命","en":"Hero's Mission","timeEnabled":false,"sentences":[{"id":"hm-1","zh":"最後一天！","en":"The last day!"}],"dateEnabled":false},{"id":"alliance-showdown","zh":"聯盟大作戰","en":"Alliance Showdown","timeEnabled":false,"sentences":[{"id":"as-1","zh":"我們一樣會分組進行！","en":"We’ll still split into groups!"}],"dateEnabled":false},{"id":"winter-siege","zh":"凜風攻城戰","en":"Winter Siege","timeEnabled":true,"sentences":[{"id":"ws-1","zh":"新活動，我還不知道怎麼玩，哈哈。","en":"No idea how this event works yet lol."},{"id":"ws-2","zh":"星期二 UTC 23:00 是報名截止。連同 Alliance Championship，請待在 PNK 等待報名完成。","en":"Registration ends Tuesday at UTC 23:00.\nPlease stay in PNK until registration is complete, including Alliance Championship."},{"id":"ws-3","zh":"第一階段截止：星期二 UTC 23:00。請待在 PNK，直到所有報名（包含 Alliance Championship）完成。","en":"Phase 1 Deadline: Tuesday UTC 23:00\nStay in PNK until all registrations, including Alliance Championship, are done."}],"dateEnabled":false}]},"vote":{"label":"投票公告","singular":"投票項目","title":"Voting Notice","items":[]},"rule":{"label":"規則公告","singular":"規則","title":"Alliance Rules","items":[]},"governor":{"label":"執政官公告","singular":"公告項目","title":"Governor Announcement","items":[]}};
+const STORAGE_KEY = "wosAnnouncementBuilder.v1";
+const ADMIN_HASH_KEY = "wosAnnouncementAdminHash.v1";
+const ADMIN_SESSION_KEY = "wosAnnouncementAdminSession.v1";
+const MODULE_ORDER = ["event","vote","rule","governor"];
+const THEME_PRESETS = {
+  beige:{name:"米灰",bg:"#f2eee8",panel:"#fbfaf7",panel2:"#f6f3ee",input:"#ffffff",preview:"#f7f4ef",ink:"#3f4542",muted:"#7c817e",line:"#d8d2c9",accent:"#99a89a",accentDeep:"#7f9182",accentSoft:"#eef1ec",dangerBg:"#fff9f8",dangerLine:"#d9bbb7",dangerText:"#8b5c58"},
+  dark:{name:"黑",bg:"#1d2021",panel:"#282c2d",panel2:"#303536",input:"#222627",preview:"#222627",ink:"#f0f2ef",muted:"#adb5b1",line:"#444b49",accent:"#7f9a91",accentDeep:"#6c887e",accentSoft:"#34413d",dangerBg:"#3b2b2b",dangerLine:"#76514f",dangerText:"#efb5b0"},
+  white:{name:"白",bg:"#f4f5f6",panel:"#ffffff",panel2:"#f7f8fa",input:"#ffffff",preview:"#fafbfc",ink:"#2e3439",muted:"#78818a",line:"#dde1e5",accent:"#8998a6",accentDeep:"#71818f",accentSoft:"#edf1f4",dangerBg:"#fff7f7",dangerLine:"#e4c3c3",dangerText:"#9a6060"},
+  blue:{name:"藍",bg:"#e9f0f5",panel:"#f8fbfd",panel2:"#f0f6fa",input:"#ffffff",preview:"#f3f8fb",ink:"#344551",muted:"#73838f",line:"#cbd8e1",accent:"#829db3",accentDeep:"#6e879b",accentSoft:"#e7f0f6",dangerBg:"#fff8f7",dangerLine:"#e0c4c0",dangerText:"#95645f"},
+  green:{name:"綠",bg:"#eaf0ea",panel:"#f9fbf8",panel2:"#f1f6f0",input:"#ffffff",preview:"#f3f7f2",ink:"#37463a",muted:"#748078",line:"#cfd9cf",accent:"#89a58d",accentDeep:"#718d76",accentSoft:"#e6efe5",dangerBg:"#fff8f7",dangerLine:"#dec4bf",dangerText:"#925f59"},
+  red:{name:"紅",bg:"#f3e9e8",panel:"#fffafa",panel2:"#f9f0ef",input:"#ffffff",preview:"#fbf3f2",ink:"#503d3b",muted:"#8b7673",line:"#dfcdca",accent:"#b07d78",accentDeep:"#986963",accentSoft:"#f3e3e1",dangerBg:"#fff5f4",dangerLine:"#dcb5b0",dangerText:"#8f514a"}
+};
+const DEFAULT_FONTS={xl:22,section:18,item:16,body:14,note:12};
+const FONT_META={xl:["大標題","網站主標題"],section:["區塊標題","活動公告、總公告、設定"],item:["項目標題","活動名稱、句子重點"],body:["內文","中英文句子、主要內容"],note:["說明文字","日期、提示、輔助文字"]};
+
+let state=loadState();
+let editingItemId=null;
+let editingSentenceId=null;
+let draggedItemId=null;
+let draggedSentenceId=null;
+let settingsDraft=null;
+const $=id=>document.getElementById(id);
+function uid(prefix){if(window.crypto&&crypto.randomUUID)return `${prefix}-${crypto.randomUUID()}`;return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`}
+function clone(obj){return JSON.parse(JSON.stringify(obj))}
+
+function normalizeItem(a){return {id:a.id||uid("item"),zh:String(a.zh||""),en:String(a.en||"Untitled"),dateEnabled:Boolean(a.dateEnabled),timeEnabled:Boolean(a.timeEnabled),sentences:Array.isArray(a.sentences)?a.sentences.map(s=>({id:s.id||uid("sentence"),zh:String(s.zh||""),en:String(s.en||"")})):[]}}
+function defaultState(){
+  const modules={};
+  for(const key of MODULE_ORDER){const d=DEFAULT_MODULES[key];modules[key]={label:d.label,singular:d.singular,title:d.title,bullet:"▸",items:clone(d.items).map(normalizeItem),announcementText:"",manualMode:false,generatedSnapshot:null}}
+  return {modules,activeModule:"event",activeItemByModule:{event:modules.event.items[0]?.id||null,vote:null,rule:null,governor:null},selected:{},times:{},dates:{},settings:{theme:"beige",fonts:clone(DEFAULT_FONTS),sidebarWidth:300}};
+}
+function normalizeState(raw){
+  const base=defaultState();
+  if(!raw||typeof raw!=="object")return base;
+  if(Array.isArray(raw.activities)){
+    base.modules.event.items=raw.activities.map(normalizeItem);
+    base.modules.event.title=typeof raw.title==="string"?raw.title:base.modules.event.title;
+    base.modules.event.bullet=typeof raw.bullet==="string"?raw.bullet:base.modules.event.bullet;
+    base.activeItemByModule.event=raw.activeActivityId||base.modules.event.items[0]?.id||null;
+    base.selected=raw.selected&&typeof raw.selected==="object"?raw.selected:{};
+    base.times=raw.times&&typeof raw.times==="object"?raw.times:{};
+    return base;
+  }
+  if(raw.modules&&typeof raw.modules==="object"){
+    for(const key of MODULE_ORDER){
+      const src=raw.modules[key]||{};const d=base.modules[key];
+      d.items=Array.isArray(src.items)?src.items.map(normalizeItem):d.items;
+      d.title=typeof src.title==="string"?src.title:d.title;
+      d.bullet=typeof src.bullet==="string"?src.bullet:d.bullet;
+      d.announcementText=typeof src.announcementText==="string"?src.announcementText:"";
+      d.manualMode=Boolean(src.manualMode);
+      d.generatedSnapshot=typeof src.generatedSnapshot==="string"?src.generatedSnapshot:null;
+    }
+  }
+  base.activeModule=MODULE_ORDER.includes(raw.activeModule)?raw.activeModule:"event";
+  base.activeItemByModule={...base.activeItemByModule,...(raw.activeItemByModule||{})};
+  base.selected=raw.selected&&typeof raw.selected==="object"?raw.selected:{};
+  base.times=raw.times&&typeof raw.times==="object"?raw.times:{};
+  base.dates=raw.dates&&typeof raw.dates==="object"?raw.dates:{};
+  const theme=raw.settings?.theme;const fonts=raw.settings?.fonts||{};
+  base.settings={theme:THEME_PRESETS[theme]?theme:"beige",fonts:{},sidebarWidth:300};
+  for(const k of Object.keys(DEFAULT_FONTS)){const n=Number(fonts[k]);base.settings.fonts[k]=Number.isFinite(n)?Math.min(36,Math.max(10,n)):DEFAULT_FONTS[k]}
+  const sw=Number(raw.settings?.sidebarWidth);base.settings.sidebarWidth=Number.isFinite(sw)?Math.min(520,Math.max(220,sw)):300;
+  return base;
+}
+function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?normalizeState(JSON.parse(raw)):defaultState()}catch(e){return defaultState()}}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));if($("saveMeta"))$("saveMeta").textContent="已儲存於本機"}
+function currentModule(){return state.modules[state.activeModule]}
+function currentItem(){const m=currentModule();const id=state.activeItemByModule[state.activeModule];return m.items.find(x=>x.id===id)||m.items[0]||null}
+function selectedIds(itemId){const v=state.selected[itemId];return Array.isArray(v)?v:[]}
+function selectedCount(itemId){return selectedIds(itemId).length}
+function allCurrentIds(){return new Set(currentModule().items.map(x=>x.id))}
+function isEventModule(){return state.activeModule==="event"}
+function articleOf(item){const s=item?.sentences?.[0];return s||null}
+function articleEnglish(item){return String(articleOf(item)?.en||"").trim()}
+function isAdmin(){return sessionStorage.getItem(ADMIN_SESSION_KEY)==="1"}
+function hasAdminPassword(){return Boolean(localStorage.getItem(ADMIN_HASH_KEY))}
+function requireAdmin(){if(isAdmin())return true;toast("請先登入管理者模式");openAdminDialog();return false}
+async function hashPassword(text){
+  if(window.crypto?.subtle){const data=new TextEncoder().encode(text);const digest=await crypto.subtle.digest("SHA-256",data);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+  let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return `fallback-${(h>>>0).toString(16)}`
+}
+function openAdminDialog(){
+  if(isAdmin()){sessionStorage.removeItem(ADMIN_SESSION_KEY);renderAll();toast("已登出管理者模式");return}
+  const setup=!hasAdminPassword();$("adminDialogTitle").textContent=setup?"建立本機管理密碼":"管理者登入";$("adminConfirmRow").classList.toggle("hidden",!setup);$("adminSubmitBtn").textContent=setup?"建立並登入":"登入";$("adminPassword").value="";$("adminPasswordConfirm").value="";$("adminPassword").autocomplete=setup?"new-password":"current-password";$("adminDialog").showModal();setTimeout(()=>$("adminPassword").focus(),40)
+}
+function renderAdminState(){
+  const admin=isAdmin();const btn=$("adminBtn");btn.textContent=admin?"🔓 管理者 · 登出":"🔒 管理者登入";btn.classList.toggle("admin-active",admin);
+  $("addItemBtn").classList.toggle("hidden",!admin);$("importBtn").classList.toggle("hidden",!admin);$("resetBtn").classList.toggle("hidden",!admin);$("clearDataBtn").classList.toggle("hidden",!admin);
+}
+
+function applySettings(){
+  const theme=THEME_PRESETS[state.settings.theme]||THEME_PRESETS.beige;const root=document.documentElement;
+  const vars={bg:"--bg",panel:"--panel",panel2:"--panel-2",input:"--input",preview:"--preview",ink:"--ink",muted:"--muted",line:"--line",accent:"--accent",accentDeep:"--accent-deep",accentSoft:"--accent-soft",dangerBg:"--danger-bg",dangerLine:"--danger-line",dangerText:"--danger-text"};
+  for(const [k,v] of Object.entries(vars))root.style.setProperty(v,theme[k]);
+  const f=state.settings.fonts;root.style.setProperty("--fs-xl",`${f.xl}px`);root.style.setProperty("--fs-section",`${f.section}px`);root.style.setProperty("--fs-item",`${f.item}px`);root.style.setProperty("--fs-body",`${f.body}px`);root.style.setProperty("--fs-note",`${f.note}px`);
+  root.style.setProperty("--sidebar-width",`${state.settings.sidebarWidth||300}px`);
+}
+function ensureActiveItem(){const m=currentModule();const id=state.activeItemByModule[state.activeModule];if(!m.items.some(x=>x.id===id))state.activeItemByModule[state.activeModule]=m.items[0]?.id||null}
+function renderAll(){ensureActiveItem();applySettings();renderAdminState();renderModuleNav();renderItemList();renderLibrary();renderPreviewPanel();}
+function renderModuleNav(){const nav=$("moduleNav");nav.innerHTML="";for(const key of MODULE_ORDER){const m=state.modules[key];const b=document.createElement("button");b.type="button";b.className="module-tab"+(key===state.activeModule?" active":"");b.textContent=m.label;b.addEventListener("click",()=>{state.activeModule=key;ensureActiveItem();saveState();renderAll()});nav.appendChild(b)}}
+function renderItemList(){
+  const m=currentModule();$("listHeading").textContent=`${m.label.replace("公告","")}列表`;$("itemCount").textContent=`${m.items.length} 個${m.singular}`;$("addItemBtn").textContent=`＋${m.singular}`;
+  const root=$("itemList");root.innerHTML="";
+  if(!m.items.length){const e=document.createElement("div");e.className="empty";e.textContent=`尚未建立${m.singular}`;root.appendChild(e);return}
+  const active=state.activeItemByModule[state.activeModule];
+  m.items.forEach(item=>{
+    const row=document.createElement("div");row.className="item-row"+(item.id===active?" active":"")+(!isAdmin()?" viewer-layout":"");row.draggable=isAdmin();row.dataset.id=item.id;
+    const drag=document.createElement("div");drag.className="drag";drag.textContent="≡";drag.title="拖曳排序";drag.classList.toggle("hidden",!isAdmin());
+    const main=document.createElement("div");main.className="item-main";const en=document.createElement("div");en.className="item-en";en.textContent=item.en;const zh=document.createElement("div");zh.className="item-zh";zh.textContent=item.zh||"—";main.append(en,zh);main.addEventListener("click",()=>{state.activeItemByModule[state.activeModule]=item.id;if(!isEventModule()){m.announcementText=articleEnglish(item);m.manualMode=false;m.generatedSnapshot=m.announcementText}saveState();renderItemList();renderLibrary();renderPreviewPanel()});
+    const badge=document.createElement("div");if(isEventModule()){const n=selectedCount(item.id);if(n>0){badge.className="badge";badge.textContent=n}}
+    row.append(drag,main,badge);
+    row.addEventListener("dragstart",()=>{draggedItemId=item.id;row.classList.add("dragging")});row.addEventListener("dragend",()=>{draggedItemId=null;row.classList.remove("dragging");document.querySelectorAll(".drop-target").forEach(el=>el.classList.remove("drop-target"))});
+    row.addEventListener("dragover",e=>{if(!draggedItemId||draggedItemId===item.id)return;e.preventDefault();row.classList.add("drop-target")});row.addEventListener("dragleave",()=>row.classList.remove("drop-target"));row.addEventListener("drop",e=>{e.preventDefault();row.classList.remove("drop-target");moveItem(draggedItemId,item.id)});
+    root.appendChild(row);
+  });
+}
+function moveItem(sourceId,targetId){if(!requireAdmin())return;if(!sourceId||sourceId===targetId)return;const items=currentModule().items;const from=items.findIndex(x=>x.id===sourceId),to=items.findIndex(x=>x.id===targetId);if(from<0||to<0)return;const [m]=items.splice(from,1);items.splice(to,0,m);dataChanged("順序已更新")}
+function renderLibrary(){
+  const root=$("libraryContent");root.innerHTML="";const item=currentItem();const m=currentModule();
+  $("libraryHeading").textContent=isEventModule()?"句子選擇":"文章內容";
+  $("librarySubtle").textContent=isEventModule()?"中文只供閱讀；總公告只輸出英文。":"單篇公告模式 · 點左側文章即可整篇載入總公告。";
+  if(!item){const e=document.createElement("div");e.className="empty";e.innerHTML=`尚未建立${m.singular}。<br>請先按左側「＋${m.singular}」。`;root.appendChild(e);return}
+  const titleRow=document.createElement("div");titleRow.className="item-title-row";const box=document.createElement("div");const h=document.createElement("h3");h.textContent=item.en;const zh=document.createElement("div");zh.className="zh-name";zh.textContent=item.zh||"未填中文名稱";box.append(h,zh);
+  const actions=document.createElement("div");actions.className="row-actions";if(isAdmin()){const eb=button(`編輯${m.singular}`,"btn small");eb.addEventListener("click",()=>openItemDialog(item.id));const db=button(`刪除${m.singular}`,"btn small danger");db.addEventListener("click",()=>deleteItem(item.id));actions.append(eb,db)}else{const tag=document.createElement("span");tag.className="viewer-tag";tag.textContent="🔒 唯讀";actions.appendChild(tag)}titleRow.append(box,actions);root.appendChild(titleRow);
+  if(!isEventModule()){
+    const article=articleOf(item);const card=document.createElement("div");card.className="article-card";
+    if(article){
+      const zb=document.createElement("div");zb.className="article-block";zb.innerHTML=`<div class="article-label">中文對照（只供閱讀）</div><div class="article-text"></div>`;zb.querySelector(".article-text").textContent=article.zh||"（無中文內容）";
+      const ebk=document.createElement("div");ebk.className="article-block";ebk.innerHTML=`<div class="article-label">英文公告（整篇輸出）</div><div class="article-text en"></div>`;ebk.querySelector(".article-text").textContent=article.en||"（無英文內容）";card.append(zb,ebk);
+    }else{const e=document.createElement("div");e.className="empty";e.style.margin="14px";e.textContent="這篇公告尚未建立文章內容。";card.appendChild(e)}
+    root.appendChild(card);
+    const aa=document.createElement("div");aa.className="article-actions";const load=button("載入整篇到總公告","btn");load.addEventListener("click",()=>{m.announcementText=articleEnglish(item);m.manualMode=false;m.generatedSnapshot=m.announcementText;saveState();renderPreviewPanel();toast("已載入整篇公告")});if(isAdmin()){const edit=button(article?"編輯文章":"＋新增文章","btn primary");edit.addEventListener("click",()=>openSentenceDialog(article?.id||null));aa.append(edit)}aa.append(load);if(article&&isAdmin()){const del=button("刪除文章內容","btn danger");del.addEventListener("click",()=>deleteSentence(article.id));aa.appendChild(del)}root.appendChild(aa);
+    return;
+  }
+  if(item.dateEnabled||item.timeEnabled){const grid=document.createElement("div");grid.className="schedule-grid";
+    if(item.dateEnabled){const b=document.createElement("div");b.className="schedule-box";const l=document.createElement("label");l.textContent="本次日期（可留白）";const inp=document.createElement("input");inp.className="input";inp.placeholder="例如：Oct 11 / 10/11";inp.value=state.dates[item.id]||"";inp.addEventListener("input",()=>{state.dates[item.id]=inp.value;generatedDataChanged()});b.append(l,inp);grid.appendChild(b)}
+    if(item.timeEnabled){const b=document.createElement("div");b.className="schedule-box";const l=document.createElement("label");l.textContent="本次時間（可留白）";const inp=document.createElement("input");inp.className="input";inp.placeholder="例如：UTC 14";inp.value=state.times[item.id]||"";inp.addEventListener("input",()=>{state.times[item.id]=inp.value;generatedDataChanged()});b.append(l,inp);grid.appendChild(b)}
+    root.appendChild(grid)
+  }
+  const toolbar=document.createElement("div");toolbar.className="sentence-toolbar";const label=document.createElement("div");label.className="label";label.textContent=isAdmin()?`${item.sentences.length} 句 · 拖曳 ≡ 可調整句子順序`:`${item.sentences.length} 句`;const tools=document.createElement("div");tools.className="row-actions";const all=item.sentences.map(s=>s.id);const fully=all.length&&all.every(id=>selectedIds(item.id).includes(id));const tb=button(fully?"全部取消":"全部選取","btn small");tb.addEventListener("click",()=>toggleAllSentences(item.id));tools.append(tb);if(isAdmin()){const add=button("＋新增句子","btn small primary");add.addEventListener("click",()=>openSentenceDialog());tools.append(add)}toolbar.append(label,tools);root.appendChild(toolbar);
+  const list=document.createElement("div");list.className="sentence-list";
+  if(!item.sentences.length){const e=document.createElement("div");e.className="empty";e.textContent="這個活動還沒有句子。";list.appendChild(e)}else item.sentences.forEach(s=>{
+    const selected=selectedIds(item.id).includes(s.id);const card=document.createElement("div");card.className="sentence-card"+(selected?" selected":"")+(!isAdmin()?" viewer-layout":"");card.draggable=isAdmin();card.dataset.id=s.id;
+    const drag=document.createElement("div");drag.className="drag";drag.textContent="≡";drag.title="拖曳排序";drag.classList.toggle("hidden",!isAdmin());const body=document.createElement("div");body.className="sentence-body";const z=document.createElement("div");z.className="sentence-zh";z.textContent=s.zh||"（無中文內容）";const en=document.createElement("div");en.className="sentence-en";en.textContent=s.en||"（無英文內容）";body.append(z,en);body.addEventListener("click",()=>toggleSentence(item.id,s.id));
+    const st=document.createElement("div");st.className="sentence-tools";const ck=document.createElement("input");ck.type="checkbox";ck.className="check";ck.checked=selected;ck.title="加入總公告";ck.addEventListener("change",()=>toggleSentence(item.id,s.id));st.append(ck);if(isAdmin()){const edit=document.createElement("button");edit.type="button";edit.className="icon-btn";edit.textContent="✎";edit.title="編輯句子";edit.addEventListener("click",e=>{e.stopPropagation();openSentenceDialog(s.id)});const del=document.createElement("button");del.type="button";del.className="icon-btn";del.textContent="×";del.title="刪除句子";del.addEventListener("click",e=>{e.stopPropagation();deleteSentence(s.id)});st.append(edit,del)}card.append(drag,body,st);
+    card.addEventListener("dragstart",()=>{draggedSentenceId=s.id;card.classList.add("dragging")});card.addEventListener("dragend",()=>{draggedSentenceId=null;card.classList.remove("dragging");document.querySelectorAll(".drop-target").forEach(el=>el.classList.remove("drop-target"))});card.addEventListener("dragover",e=>{if(!draggedSentenceId||draggedSentenceId===s.id)return;e.preventDefault();card.classList.add("drop-target")});card.addEventListener("dragleave",()=>card.classList.remove("drop-target"));card.addEventListener("drop",e=>{e.preventDefault();card.classList.remove("drop-target");moveSentence(draggedSentenceId,s.id)});list.appendChild(card);
+  });root.appendChild(list);
+}
+function moveSentence(sourceId,targetId){if(!requireAdmin())return;const item=currentItem();if(!item||!sourceId||sourceId===targetId)return;const from=item.sentences.findIndex(s=>s.id===sourceId),to=item.sentences.findIndex(s=>s.id===targetId);if(from<0||to<0)return;const [m]=item.sentences.splice(from,1);item.sentences.splice(to,0,m);dataChanged("句子順序已更新")}
+function toggleSentence(itemId,sentenceId){const cur=selectedIds(itemId).slice();const i=cur.indexOf(sentenceId);if(i>=0)cur.splice(i,1);else cur.push(sentenceId);state.selected[itemId]=cur;dataChanged()}
+function toggleAllSentences(itemId){const item=currentModule().items.find(x=>x.id===itemId);if(!item)return;const all=item.sentences.map(s=>s.id);const fully=all.length&&all.every(id=>selectedIds(itemId).includes(id));state.selected[itemId]=fully?[]:all;dataChanged()}
+function buildAnnouncement(){const m=currentModule();if(!isEventModule())return articleEnglish(currentItem());const blocks=[];for(const item of m.items){const chosen=new Set(selectedIds(item.id));const lines=item.sentences.filter(s=>chosen.has(s.id)&&s.en.trim()).map(s=>s.en.trim());if(!lines.length)continue;let header=`${m.bullet||""}${item.en.trim()||"Untitled"}`;const parts=[];const d=item.dateEnabled?String(state.dates[item.id]||"").trim():"";const t=item.timeEnabled?String(state.times[item.id]||"").trim():"";if(d)parts.push(d);if(t)parts.push(t);if(parts.length)header+=` — ${parts.join(" — ")}`;blocks.push(`${header}\n${lines.join("\n")}`)}const title=m.title.trim();if(title&&blocks.length)return `${title}\n\n${blocks.join("\n\n")}`;if(title)return title;return blocks.join("\n\n")}
+function lcsTable(a,b){const dp=Array.from({length:a.length+1},()=>new Uint16Array(b.length+1));for(let i=a.length-1;i>=0;i--){for(let j=b.length-1;j>=0;j--)dp[i][j]=a[i]===b[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1])}return dp}
+function lineMapping(base,local){const dp=lcsTable(base,local),map=new Map();let i=0,j=0;while(i<base.length&&j<local.length){if(base[i]===local[j]){map.set(i,j);i++;j++}else if(dp[i+1][j]>=dp[i][j+1])i++;else j++}return map}
+function diffChunks(base,next){const dp=lcsTable(base,next),ops=[];let i=0,j=0;while(i<base.length||j<next.length){if(i<base.length&&j<next.length&&base[i]===next[j]){i++;j++;continue}const ai=i,bj=j;while(i<base.length||j<next.length){if(i<base.length&&j<next.length&&base[i]===next[j])break;if(j<next.length&&(i===base.length||dp[i][j+1]>(i<base.length?dp[i+1][j]:-1)))j++;else if(i<base.length)i++;else j++}ops.push({aStart:ai,aEnd:i,newLines:next.slice(bj,j)})}return ops}
+function mergeGeneratedChange(currentText,baseText,nextText){
+  if(currentText===baseText)return nextText;if(baseText===nextText)return currentText;
+  const base=String(baseText||"").replace(/\r/g,"").split("\n"),local=String(currentText||"").replace(/\r/g,"").split("\n"),next=String(nextText||"").replace(/\r/g,"").split("\n");
+  if(base.length===1&&base[0]==="")base.length=0;if(local.length===1&&local[0]==="")local.length=0;if(next.length===1&&next[0]==="")next.length=0;
+  const map=lineMapping(base,local),ops=diffChunks(base,next);const boundary=(idx)=>{for(let k=idx;k<base.length;k++)if(map.has(k))return map.get(k);return local.length};
+  for(let x=ops.length-1;x>=0;x--){const op=ops[x];let start=boundary(op.aStart),end=boundary(op.aEnd);if(op.aStart===op.aEnd)end=start;if(end<start)end=start;local.splice(start,end-start,...op.newLines)}
+  return local.join("\n")
+}
+function syncGeneratedAnnouncement(){const m=currentModule();const next=buildAnnouncement();if(typeof m.generatedSnapshot!=="string")m.generatedSnapshot=next;if(m.manualMode&&isEventModule())m.announcementText=mergeGeneratedChange(m.announcementText,m.generatedSnapshot,next);else if(!m.manualMode)m.announcementText=next;m.generatedSnapshot=next}
+function generatedDataChanged(message){syncGeneratedAnnouncement();saveState();renderPreviewPanel();if(message)toast(message)}
+function dataChanged(message){syncGeneratedAnnouncement();saveState();renderAll();if(message)toast(message)}
+function renderPreviewPanel(){const m=currentModule();const eventMode=isEventModule();$("previewControls").classList.toggle("hidden",!eventMode);$("titleInput").value=m.title;$("bulletSelect").value=m.bullet;const generated=buildAnnouncement();if(typeof m.generatedSnapshot!=="string")m.generatedSnapshot=generated;if(!m.manualMode&&m.announcementText!==generated){m.announcementText=generated;m.generatedSnapshot=generated;saveState()}$("previewEditor").value=m.announcementText||"";$("previewEditor").placeholder=eventMode?"尚未選擇公告句子":"點左側文章即可整篇載入";$("manualNote").textContent=eventMode?"已手動修改：之後勾選／取消句子、日期與時間仍會同步，系統會盡量保留你額外修改的文字。若想完全回到系統格式，可按下方重新產生。":"你已手動編輯總公告。若要恢復目前文章原文，按「重新載入此篇文章」。";$("manualNote").classList.toggle("show",m.manualMode);if(eventMode){const count=m.items.filter(x=>selectedCount(x.id)>0).length;$("selectedMeta").textContent=`已選 ${count} 個${m.singular}`;$("refreshAnnouncementBtn").textContent="↻ 完全依選擇重新產生"}else{$("selectedMeta").textContent=currentItem()?`目前文章：${currentItem().en}`:"尚未選擇文章";$("refreshAnnouncementBtn").textContent="↻ 重新載入此篇文章"}}
+function button(text,cls){const b=document.createElement("button");b.type="button";b.className=cls;b.textContent=text;return b}
+
+function openItemDialog(id=null){if(!requireAdmin())return;editingItemId=id;const m=currentModule();const item=id?m.items.find(x=>x.id===id):null;const eventMode=isEventModule();$("itemDialogTitle").textContent=item?`編輯${m.singular}`:`新增${m.singular}`;$("itemEnLabel").textContent=`英文${m.singular}名稱${eventMode?"（公告會使用這個名稱）":"（列表辨識用）"}`;$("itemZhLabel").textContent=`中文${m.singular}名稱`;$("itemEn").value=item?.en||"";$("itemZh").value=item?.zh||"";$("itemDateEnabled").checked=eventMode&&Boolean(item?.dateEnabled);$("itemTimeEnabled").checked=eventMode&&Boolean(item?.timeEnabled);$("dateOptionRow").classList.toggle("hidden",!eventMode);$("timeOptionRow").classList.toggle("hidden",!eventMode);$("scheduleHelp").classList.toggle("hidden",!eventMode);$("itemDialog").showModal();setTimeout(()=>$("itemEn").focus(),40)}
+$("itemForm").addEventListener("submit",e=>{e.preventDefault();if(!requireAdmin())return;const m=currentModule();const eventMode=isEventModule();const en=$("itemEn").value.trim(),zh=$("itemZh").value.trim(),dateEnabled=eventMode&&$("itemDateEnabled").checked,timeEnabled=eventMode&&$("itemTimeEnabled").checked;if(!en)return;if(editingItemId){const item=m.items.find(x=>x.id===editingItemId);if(item){item.en=en;item.zh=zh;item.dateEnabled=dateEnabled;item.timeEnabled=timeEnabled}}else{const id=uid("item");m.items.push({id,zh,en,dateEnabled,timeEnabled,sentences:[]});state.activeItemByModule[state.activeModule]=id;if(!eventMode){m.announcementText="";m.manualMode=false}}$("itemDialog").close();editingItemId=null;dataChanged(`${m.singular}已儲存`)})
+function deleteItem(id){if(!requireAdmin())return;const m=currentModule();const item=m.items.find(x=>x.id===id);if(!item)return;if(!confirm(`確定刪除「${item.en}」？\n此項目內的內容也會一起刪除。`))return;m.items=m.items.filter(x=>x.id!==id);delete state.selected[id];delete state.times[id];delete state.dates[id];if(state.activeItemByModule[state.activeModule]===id)state.activeItemByModule[state.activeModule]=m.items[0]?.id||null;dataChanged(`${m.singular}已刪除`)}
+function openSentenceDialog(id=null){if(!requireAdmin())return;const item=currentItem();if(!item)return;const eventMode=isEventModule();const existing=eventMode?(id?item.sentences.find(x=>x.id===id):null):articleOf(item);editingSentenceId=existing?.id||null;$("sentenceDialogTitle").textContent=eventMode?(existing?"編輯句子":"新增句子"):(existing?"編輯文章":"新增文章");$("sentenceZhLabel").textContent=eventMode?"中文內容（只供閱讀）":"中文文章（只供閱讀）";$("sentenceEnLabel").textContent=eventMode?"英文內容（會輸出到公告）":"英文文章（會整篇輸出到公告）";$("sentenceZh").value=existing?.zh||"";$("sentenceEn").value=existing?.en||"";$("sentenceDialog").showModal();setTimeout(()=>$("sentenceZh").focus(),40)}
+$("sentenceForm").addEventListener("submit",e=>{e.preventDefault();if(!requireAdmin())return;const item=currentItem();if(!item)return;const eventMode=isEventModule();const zh=$("sentenceZh").value.trim(),en=$("sentenceEn").value.trim();if(!en)return;if(eventMode){if(editingSentenceId){const s=item.sentences.find(x=>x.id===editingSentenceId);if(s){s.zh=zh;s.en=en}}else item.sentences.push({id:uid("sentence"),zh,en})}else{const id=editingSentenceId||uid("article");item.sentences=[{id,zh,en}];const m=currentModule();m.announcementText=en;m.manualMode=false;m.generatedSnapshot=en}$("sentenceDialog").close();editingSentenceId=null;dataChanged(eventMode?"句子已儲存":"文章已儲存")})
+function deleteSentence(id){if(!requireAdmin())return;const item=currentItem();const s=item?.sentences.find(x=>x.id===id);if(!item||!s)return;const eventMode=isEventModule();if(!confirm(eventMode?"確定刪除這句內容？":"確定刪除這篇文章內容？"))return;item.sentences=eventMode?item.sentences.filter(x=>x.id!==id):[];if(eventMode)state.selected[item.id]=selectedIds(item.id).filter(x=>x!==id);else{const m=currentModule();m.announcementText="";m.manualMode=false;m.generatedSnapshot=""}dataChanged(eventMode?"句子已刪除":"文章內容已刪除")}
+
+$("addItemBtn").addEventListener("click",()=>openItemDialog());
+$("titleInput").addEventListener("input",e=>{const m=currentModule();m.title=e.target.value;generatedDataChanged()});
+$("bulletSelect").addEventListener("change",e=>{const m=currentModule();m.bullet=e.target.value;generatedDataChanged()});
+$("previewEditor").addEventListener("input",e=>{const m=currentModule();m.announcementText=e.target.value;m.manualMode=true;saveState();$("manualNote").classList.add("show")});
+$("refreshAnnouncementBtn").addEventListener("click",()=>{const m=currentModule();m.manualMode=false;m.announcementText=buildAnnouncement();m.generatedSnapshot=m.announcementText;saveState();renderPreviewPanel();toast(isEventModule()?"已完全依目前選擇重新產生":"已重新載入此篇文章")});
+$("clearAnnouncementBtn").addEventListener("click",()=>{const m=currentModule();if(!isEventModule()){if(m.announcementText&&!confirm("清空右側總公告？原本文章內容不會刪除。"))return;m.announcementText="";m.manualMode=true;saveState();renderPreviewPanel();toast("總公告已清空");return}const ids=new Set(m.items.map(x=>x.id));const hasAny=m.announcementText||m.items.some(x=>selectedCount(x.id)>0);if(hasAny&&!confirm(`清空目前「${m.label}」的已選句子、日期、時間與總公告？`))return;for(const id of ids){delete state.selected[id];delete state.times[id];delete state.dates[id]}m.announcementText="";m.manualMode=false;m.generatedSnapshot=buildAnnouncement();saveState();renderAll();toast("本分類公告已清空")});
+$("copyBtn").addEventListener("click",async()=>{const text=currentModule().announcementText.trim();if(!text){toast("目前沒有可複製的公告");return}let ok=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);ok=true}}catch(e){}if(!ok){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();try{ok=document.execCommand("copy")}catch(e){}ta.remove()}toast(ok?"公告已複製":"無法自動複製，請手動選取總公告文字")});
+
+$("adminBtn").addEventListener("click",openAdminDialog);
+$("adminForm").addEventListener("submit",async e=>{
+  e.preventDefault();const password=$("adminPassword").value;const setup=!hasAdminPassword();if(password.length<6){alert("管理密碼至少需要 6 個字元。");return}
+  const hashed=await hashPassword(password);
+  if(setup){if(password!==$("adminPasswordConfirm").value){alert("兩次輸入的密碼不同。");return}localStorage.setItem(ADMIN_HASH_KEY,hashed);sessionStorage.setItem(ADMIN_SESSION_KEY,"1");$("adminDialog").close();renderAll();toast("已建立本機管理密碼並登入");return}
+  if(hashed!==localStorage.getItem(ADMIN_HASH_KEY)){alert("密碼不正確。");return}sessionStorage.setItem(ADMIN_SESSION_KEY,"1");$("adminDialog").close();renderAll();toast("管理者登入成功")
+});
+function openSettings(){settingsDraft=clone(state.settings);renderSettingsDialog();$("settingsDialog").showModal()}
+function renderSettingsDialog(){const tg=$("themeGrid");tg.innerHTML="";for(const [key,t] of Object.entries(THEME_PRESETS)){const b=document.createElement("button");b.type="button";b.className="theme-option"+(settingsDraft.theme===key?" selected":"");b.innerHTML=`<div class="theme-swatch"><span style="background:${t.bg}"></span><span style="background:${t.panel}"></span><span style="background:${t.accent}"></span></div><strong>${t.name}</strong>`;b.addEventListener("click",()=>{settingsDraft.theme=key;renderSettingsDialog()});tg.appendChild(b)}const fg=$("fontGrid");fg.innerHTML="";for(const key of Object.keys(DEFAULT_FONTS)){const [name,use]=FONT_META[key];const row=document.createElement("div");row.className="font-row";const info=document.createElement("div");info.innerHTML=`<div class="font-name">${name}</div><div class="font-use">${use}</div>`;const wrap=document.createElement("div");wrap.className="number-input";const inp=document.createElement("input");inp.className="input";inp.type="number";inp.min="10";inp.max="36";inp.step="1";inp.value=settingsDraft.fonts[key];inp.addEventListener("input",()=>{const n=Number(inp.value);if(Number.isFinite(n))settingsDraft.fonts[key]=Math.min(36,Math.max(10,n))});const unit=document.createElement("span");unit.className="subtle";unit.textContent="px";wrap.append(inp,unit);row.append(info,wrap);fg.appendChild(row)}}
+$("settingsBtn").addEventListener("click",openSettings);$("resetFontsBtn").addEventListener("click",()=>{settingsDraft.fonts=clone(DEFAULT_FONTS);renderSettingsDialog()});
+$("settingsForm").addEventListener("submit",e=>{e.preventDefault();state.settings=normalizeState({settings:settingsDraft}).settings;applySettings();saveState();$("settingsDialog").close();toast("外觀設定已套用")});
+
+$("exportBtn").addEventListener("click",()=>{const payload={version:"2.2.1",exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`WOS公告備份_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast("備份已匯出")});
+$("importBtn").addEventListener("click",()=>{if(requireAdmin())$("importFile").click()});$("importFile").addEventListener("change",async e=>{if(!requireAdmin())return;const file=e.target.files?.[0];e.target.value="";if(!file)return;try{const text=await file.text();const parsed=JSON.parse(text);const data=parsed.data||parsed;if(!confirm("匯入備份會取代目前資料，確定繼續？"))return;state=normalizeState(data);saveState();renderAll();toast("備份已匯入")}catch(err){alert("這不是有效的 WOS 公告備份檔。")}});
+$("resetBtn").addEventListener("click",()=>{if(!requireAdmin())return;if(!confirm("還原為預設資料？目前修改會被取代。"))return;state=defaultState();saveState();renderAll();toast("已還原預設資料")});
+$("clearDataBtn").addEventListener("click",()=>{if(!requireAdmin())return;if(!confirm("確定清空四個公告分類的所有項目與內容？建議先匯出備份。"))return;const s=defaultState();for(const key of MODULE_ORDER)s.modules[key].items=[];s.activeItemByModule={event:null,vote:null,rule:null,governor:null};s.settings=clone(state.settings);state=s;saveState();renderAll();toast("所有資料已清空")});
+
+// 可調整左側列表寬度：只影響左欄與中間欄，右側總公告固定 410px。
+(function initColumnResizer(){
+  const handle=$("columnResizer");if(!handle)return;let active=false;
+  const clampWidth=(clientX)=>{const layout=document.querySelector(".layout");if(!layout)return state.settings.sidebarWidth||300;const rect=layout.getBoundingClientRect();const previewWidth=410,handleWidth=8,gaps=30,minMiddle=360;const maxBySpace=Math.max(220,rect.width-previewWidth-handleWidth-gaps-minMiddle);return Math.round(Math.min(Math.min(520,maxBySpace),Math.max(220,clientX-rect.left)))};
+  handle.addEventListener("pointerdown",e=>{if(window.matchMedia("(max-width:1180px)").matches)return;active=true;handle.classList.add("resizing");document.body.classList.add("resizing-columns");handle.setPointerCapture?.(e.pointerId);e.preventDefault()});
+  handle.addEventListener("pointermove",e=>{if(!active)return;state.settings.sidebarWidth=clampWidth(e.clientX);document.documentElement.style.setProperty("--sidebar-width",`${state.settings.sidebarWidth}px`)});
+  const finish=e=>{if(!active)return;active=false;handle.classList.remove("resizing");document.body.classList.remove("resizing-columns");try{handle.releasePointerCapture?.(e.pointerId)}catch(_){}saveState()};
+  handle.addEventListener("pointerup",finish);handle.addEventListener("pointercancel",finish);
+})();
+document.querySelectorAll("[data-close-dialog]").forEach(btn=>btn.addEventListener("click",()=>$(btn.dataset.closeDialog).close()));document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{const r=d.getBoundingClientRect();const inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;if(!inside)d.close()}));
+let toastTimer;function toast(message){const t=$("toast");t.textContent=message;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1800)}
+renderAll();
+</script>
+</body>
+</html>
