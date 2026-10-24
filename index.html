@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WOS 聯盟公告小工具</title>
+<title>WOS 聯盟公告小工具｜GitHub 公開版 v3.4</title>
 <style>
 :root{
   --bg:#f2eee8;
@@ -162,8 +162,27 @@ dialog::backdrop{background:rgba(45,48,46,.35);backdrop-filter:blur(2px)}
 .article-text{font-size:var(--fs-body);line-height:1.7;white-space:pre-wrap;word-break:break-word}
 .article-text.en{color:var(--ink)}
 .article-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.hero-shell{padding:0 16px}
+.pixel-banner{margin-top:12px;overflow:hidden;position:relative;width:100%}
+.pixel-scene{position:relative;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;background:#0e1d31;width:100%;aspect-ratio:16/3;min-height:170px;max-height:290px}
+.pixel-scene canvas{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.pixel-scene::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 60px rgba(6,18,31,.28)}
+.pixel-caption{position:absolute;left:18px;top:16px;z-index:2;max-width:min(440px,38%);padding:10px 13px;border:1px solid rgba(203,229,244,.25);border-radius:11px;background:rgba(7,22,39,.58);backdrop-filter:blur(4px);color:#eef8ff}
+.pixel-caption .kicker{font:800 10px/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.15em;color:#9fd6f2;margin-bottom:4px}
+.pixel-caption strong{display:block;font-size:clamp(15px,1.45vw,21px);line-height:1.25}
+.pixel-caption span{display:block;margin-top:4px;color:#c9dce8;font-size:11px;line-height:1.45}
+.pixel-badge{position:absolute;right:14px;bottom:13px;z-index:2;padding:7px 10px;border-radius:8px;background:rgba(7,22,39,.62);border:1px solid rgba(233,190,126,.28);color:#ffe1b0;font:700 10px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em}
+.pixel-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:var(--panel);border-top:1px solid var(--line)}
+.pixel-tool-group{display:flex;align-items:center;gap:5px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2)}
+.pixel-tool-label{padding:0 5px;color:var(--muted);font-size:var(--fs-note);font-weight:800}
+.pixel-btn{border:1px solid transparent;background:transparent;color:var(--ink);padding:7px 10px;border-radius:7px;cursor:pointer;font-size:var(--fs-note);font-weight:800;min-height:34px}
+.pixel-btn:hover{background:var(--accent-soft)}
+.pixel-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.pixel-btn.save{margin-left:auto;border-color:var(--line);background:var(--panel)}
+.pixel-status{font-size:var(--fs-note);color:var(--muted);padding:0 4px}.pixel-status b{color:var(--ink)}
 @media(max-width:1180px){.layout{grid-template-columns:270px 1fr;gap:16px}.column-resizer{display:none}.preview-panel{grid-column:1/-1;max-height:none}.sidebar,.library{max-height:calc(100vh - 142px)}}
-@media(max-width:760px){.topbar{align-items:flex-start;padding:14px}.brand h1{font-size:calc(var(--fs-xl) - 2px)}.top-actions{justify-content:flex-end}.module-nav{top:72px}.layout{grid-template-columns:1fr;padding:10px}.sidebar,.library,.preview-panel{max-height:none}.sidebar{min-height:420px}.item-list{max-height:420px}.library-content{overflow:visible}.control-grid,.schedule-grid{grid-template-columns:1fr}.theme-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.topbar{align-items:flex-start;padding:14px}.brand h1{font-size:calc(var(--fs-xl) - 2px)}.top-actions{justify-content:flex-end}.module-nav{top:72px}.hero-shell{padding:0 10px}.pixel-scene{aspect-ratio:3/1;min-height:150px}.pixel-caption{left:10px;top:10px;max-width:70%;padding:8px 10px}.pixel-caption span{display:none}.pixel-badge{right:8px;bottom:8px;font-size:8px}.pixel-toolbar{gap:6px;padding:7px}.pixel-tool-group{flex-wrap:wrap}.pixel-btn{padding:7px 8px}.pixel-btn.save{margin-left:0}.layout{grid-template-columns:1fr;padding:10px}.sidebar,.library,.preview-panel{max-height:none}.sidebar{min-height:420px}.item-list{max-height:420px}.library-content{overflow:visible}.control-grid,.schedule-grid{grid-template-columns:1fr}.theme-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -171,34 +190,53 @@ dialog::backdrop{background:rgba(45,48,46,.35);backdrop-filter:blur(2px)}
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark">WOS</div>
-      <div><h1>聯盟公告小工具</h1><p>單機模式 · 資料與外觀設定只保存在這台裝置</p></div>
+      <div><h1>聯盟公告小工具</h1><p>公開版 · 共用公告內容由網站統一提供</p></div>
     </div>
     <div class="top-actions">
       <button class="btn" id="settingsBtn">⚙ 設定</button>
-      <button class="btn" id="exportBtn">匯出備份</button>
-      <button class="btn" id="importBtn">匯入備份</button>
       <a class="btn" href="https://www.wosrewards.com/" target="_blank" rel="noopener noreferrer">🎁 WOS Rewards</a>
       <a class="btn" href="https://www.whiteoutsurvival.wiki/" target="_blank" rel="noopener noreferrer">📖 WOS Wiki</a>
-      <button class="btn" id="adminBtn">🔒 管理者登入</button>
-      <input id="importFile" class="file-input" type="file" accept=".json,application/json">
     </div>
   </header>
 
   <nav class="module-nav" id="moduleNav"></nav>
 
+  <section class="hero-shell">
+    <div class="panel pixel-banner">
+      <div class="pixel-scene">
+        <canvas id="pixelHero" width="1280" height="240" aria-label="寒霜啟示錄冰雪城市互動點陣橫幅"></canvas>
+        <div class="pixel-caption">
+          <div class="kicker">WHITEOUT SURVIVAL · ALLIANCE NOTICE</div>
+          <strong>寒霜啟示錄聯盟公告</strong>
+          <span>互動冰雪城點綴 · 8:1.5 超寬橫幅</span>
+        </div>
+        <div class="pixel-badge" id="heroSeasonTag">❄ FROST CITY · -32°C</div>
+      </div>
+      <div class="pixel-toolbar">
+        <div class="pixel-tool-group">
+          <span class="pixel-tool-label">天空</span>
+          <button type="button" class="pixel-btn active" id="heroModeNight">☾ 極夜</button>
+          <button type="button" class="pixel-btn" id="heroModeDay">☀ 白晝</button>
+        </div>
+        <div class="pixel-tool-group">
+          <span class="pixel-tool-label">場景</span>
+          <button type="button" class="pixel-btn active" id="heroSnowBtn">❄ 飄雪 ON</button>
+          <button type="button" class="pixel-btn active" id="heroFireBtn">♨ 熔爐 ON</button>
+        </div>
+        <div class="pixel-status">熔爐狀態：<b id="heroHeatStatus">燃燒中</b></div>
+        <button type="button" class="pixel-btn save" id="heroSaveBtn">↓ 下載 PNG 點陣圖</button>
+      </div>
+    </div>
+  </section>
+
   <main class="layout">
     <aside class="panel sidebar">
       <div class="panel-head">
         <div><h2 id="listHeading">活動列表</h2><div class="subtle" id="itemCount"></div></div>
-        <button class="btn small primary" id="addItemBtn">＋活動</button>
       </div>
       <div class="item-list" id="itemList"></div>
       <div class="sidebar-foot">
-        <div class="subtle">管理者登入後可拖曳 ≡ 調整資料順序；欄位間直線可調整列表寬度。</div>
-        <div class="backup-row">
-          <button class="btn small" id="resetBtn">還原預設</button>
-          <button class="btn small" id="clearDataBtn">清空所有資料</button>
-        </div>
+        <div class="subtle">公告內容為網站固定資料；拖曳欄位間直線可調整列表寬度。</div>
       </div>
     </aside>
 
@@ -229,36 +267,11 @@ dialog::backdrop{background:rgba(45,48,46,.35);backdrop-filter:blur(2px)}
           <button class="btn" id="clearAnnouncementBtn">清空公告</button>
           <button class="btn wide" id="refreshAnnouncementBtn">↻ 依選擇重新產生</button>
         </div>
-        <div class="meta-line"><span id="selectedMeta">已選 0 個項目</span><span id="saveMeta">已儲存於本機</span></div>
+        <div class="meta-line"><span id="selectedMeta">已選 0 個項目</span><span id="saveMeta">個人編輯暫存於本機</span></div>
       </div>
     </aside>
   </main>
 </div>
-
-<dialog id="itemDialog">
-  <form id="itemForm">
-    <div class="modal-head"><h3 id="itemDialogTitle">新增活動</h3><button type="button" class="icon-btn" data-close-dialog="itemDialog">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label for="itemEn" id="itemEnLabel">英文活動名稱（公告會使用這個名稱）</label><input class="input" id="itemEn" required></div>
-      <div class="field"><label for="itemZh" id="itemZhLabel">中文活動名稱</label><input class="input" id="itemZh"></div>
-      <label class="check-row" id="dateOptionRow"><input type="checkbox" id="itemDateEnabled"><span>這個項目需要「本次日期」欄位</span></label>
-      <label class="check-row" id="timeOptionRow"><input type="checkbox" id="itemTimeEnabled"><span>這個項目需要「本次時間」欄位</span></label>
-      <div class="subtle" id="scheduleHelp">勾選後，句子頁面會出現日期／時間欄；留白時不會輸出。</div>
-    </div>
-    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="itemDialog">取消</button><button type="submit" class="btn primary">儲存</button></div>
-  </form>
-</dialog>
-
-<dialog id="sentenceDialog">
-  <form id="sentenceForm">
-    <div class="modal-head"><h3 id="sentenceDialogTitle">新增句子</h3><button type="button" class="icon-btn" data-close-dialog="sentenceDialog">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label for="sentenceZh" id="sentenceZhLabel">中文內容（只供閱讀）</label><textarea class="textarea" id="sentenceZh"></textarea></div>
-      <div class="field"><label for="sentenceEn" id="sentenceEnLabel">英文內容（會輸出到公告）</label><textarea class="textarea" id="sentenceEn" required></textarea></div>
-    </div>
-    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="sentenceDialog">取消</button><button type="submit" class="btn primary">儲存</button></div>
-  </form>
-</dialog>
 
 <dialog id="settingsDialog">
   <form id="settingsForm">
@@ -277,25 +290,11 @@ dialog::backdrop{background:rgba(45,48,46,.35);backdrop-filter:blur(2px)}
   </form>
 </dialog>
 
-<dialog id="adminDialog">
-  <form id="adminForm">
-    <div class="modal-head"><h3 id="adminDialogTitle">管理者登入</h3><button type="button" class="icon-btn" data-close-dialog="adminDialog">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label for="adminPassword">管理密碼</label><input class="input" id="adminPassword" type="password" autocomplete="current-password" required></div>
-      <div class="field hidden" id="adminConfirmRow"><label for="adminPasswordConfirm">再次輸入密碼</label><input class="input" id="adminPasswordConfirm" type="password" autocomplete="new-password"></div>
-      <div class="lock-note" id="adminHelp">目前是單機版的本機管理鎖，用來先測試「訪客唯讀／管理者編輯」流程。正式部署到 GitHub Pages 時，仍需接 Supabase／Firebase 等後端驗證；請勿把前端密碼當成真正的線上安全機制。</div>
-    </div>
-    <div class="modal-foot"><button type="button" class="btn" data-close-dialog="adminDialog">取消</button><button type="submit" class="btn primary" id="adminSubmitBtn">登入</button></div>
-  </form>
-</dialog>
-
 <div class="toast" id="toast"></div>
 
 <script>
-const DEFAULT_MODULES = {"event":{"label":"活動公告","singular":"活動","title":"Today’s Events","items":[{"id":"icefire-prediction","zh":"冰火聯賽","en":"Icefire Prediction","timeEnabled":false,"sentences":[{"id":"icefire-1","zh":"投票截止時間為：UTC 10:00／UTC 16:00／UTC 22:00。今天有 3 次預測。","en":"Prediction deadlines:\nUTC 10:00 / UTC 16:00 / UTC 22:00\nThere are 3 prediction rounds today."},{"id":"icefire-2","zh":"記得報名！","en":"Remember to register!"}],"dateEnabled":false},{"id":"crazy-joe","zh":"瘋狂喬伊","en":"Crazy Joe","timeEnabled":true,"sentences":[{"id":"crazy-1","zh":"保持在線！","en":"Please stay online!"}],"dateEnabled":false},{"id":"stronghold-fortress","zh":"堡壘與要塞","en":"Stronghold & Fortress","timeEnabled":true,"sentences":[{"id":"sf-1","zh":"活動時間已加到行事曆，請確認時程並注意時間。","en":"The event times have been added to the calendar.\nPlease check the schedule and pay attention to the times."},{"id":"sf-2","zh":"UTC 14:00 的堡壘會在打熊活動之後進行。","en":"The UTC 14:00 fortress will be after the Bear Trap."},{"id":"sf-3","zh":"兵力上限：60,000。","en":"Troop limit: 60,000"},{"id":"sf-4","zh":"活動時間都在行事曆上，請確認時程！","en":"Event times are on the calendar. Please check the schedule!"}],"dateEnabled":false},{"id":"svs-battle","zh":"SVS－戰爭階段","en":"SVS-Battle Phase","timeEnabled":false,"sentences":[{"id":"svs-1","zh":"記得開防護罩！","en":"Remember to activate your shield!"}],"dateEnabled":false},{"id":"mercenary-prestige","zh":"傭兵榮耀","en":"Mercenary Prestige","timeEnabled":false,"sentences":[{"id":"mp-1","zh":"盡可能分享「求助」，讓盟友拿獎勵。","en":"Please share as many Help Requests as possible so your allies can earn rewards."}],"dateEnabled":false},{"id":"phaethon-captain","zh":"傭兵頭目","en":"Phaethon Captain","timeEnabled":true,"sentences":[{"id":"pc-1","zh":"7/19 UTC 14:30 — Lv. 1–3；7/20 UTC 01:00 — Lv. 4–5。","en":"• 7/19 UTC 14:30 — Lv. 1–3\n• 7/20 UTC 01:00 — Lv. 4–5"}],"dateEnabled":false},{"id":"tal","zh":"雪域聯賽（TAL）","en":"TAL","timeEnabled":true,"sentences":[{"id":"tal-1","zh":"國家隊：7/20 UTC 14:00；PNK：7/20 UTC 14:00；記得押注獲勝隊伍！","en":"State Team: 7/20 UTC 14:00\nPNK: 7/20 UTC 14:00\nRemember to bet on the winner!"}],"dateEnabled":false},{"id":"tundra-trading","zh":"雪原貿易戰","en":"Tundra Trading Station","timeEnabled":false,"sentences":[{"id":"tts-1","zh":"交換你喜歡的道具。","en":"Exchange for the items you want."}],"dateEnabled":false},{"id":"tundra-route","zh":"雪原商隊","en":"Tundra Trade Route","timeEnabled":false,"sentences":[{"id":"ttr-1","zh":"協助護送可以得到額外寶箱，善用子帳號！","en":"Help escort convoys to earn extra chests.\nMake good use of your alt accounts!"},{"id":"ttr-2","zh":"派送強大的部隊協助盟友。","en":"Send strong troops to reinforce your allies."}],"dateEnabled":false},{"id":"tundra-trek","zh":"雪原遊歷","en":"Tundra Trek","timeEnabled":false,"sentences":[{"id":"tt-1","zh":"今天有新專家。更新結束後再使用遊歷次數。","en":"A new expert will be available today.\nSave your Tundra Trek attempts until after the update."}],"dateEnabled":false},{"id":"alliance-championship","zh":"聯盟爭霸賽","en":"Alliance Championship","timeEnabled":true,"sentences":[{"id":"ac-1","zh":"往返分盟的成員，記得在 UTC 23:00 之前登錄並待在 PNK。","en":"Members moving between alliances, please register and stay in PNK before UTC 23:00."},{"id":"ac-2","zh":"UTC 12 發送結算獎勵，記得待在 PNK。","en":"Rewards will be sent at UTC 12. Remember to stay in PNK!"},{"id":"ac-3","zh":"記得在有 BUFF 時報名聯盟爭霸賽。","en":"Remember to register for the Alliance Championship while the buff is active."},{"id":"ac-4","zh":"有 BUFF 時報名！","en":"Register while the buff is active!"}],"dateEnabled":false},{"id":"journey-light","zh":"逐光之旅","en":"Journey of Light","timeEnabled":false,"sentences":[{"id":"jl-1","zh":"準時讓飛機起飛，哈哈。","en":"Make sure the plane takes off on time lol."}],"dateEnabled":false},{"id":"frostfive-mine","zh":"燃霜礦場","en":"Frostfive Mine","timeEnabled":false,"sentences":[{"id":"fm-1","zh":"確認凱西的技能是否升級，再進入礦場。","en":"Check whether Kathy’s skill has been upgraded before entering the mine."}],"dateEnabled":false},{"id":"dreamscape-memory","zh":"夢境巡憶","en":"Dreamscape Memory","timeEnabled":false,"sentences":[{"id":"dm-1","zh":"每天完成一次 Dreamscape Fusion。","en":"Complete Dreamscape Fusion once every day."},{"id":"dm-2","zh":"今天是最後一天！","en":"Today is the last day of the event!"}],"dateEnabled":false},{"id":"ka","zh":"KA","en":"KA","timeEnabled":false,"sentences":[{"id":"ka-1","zh":"請閱讀 Liv 傳送的群組消息。","en":"Please read the group message sent by Liv."}],"dateEnabled":false},{"id":"alliance-mobilization","zh":"聯盟總動員","en":"Alliance Mobilization","timeEnabled":false,"sentences":[{"id":"am-1","zh":"配合軍備競演、英雄殿堂、黎明的願景完成總動員任務。","en":"Complete Mobilization missions together with Officer Project, Vision of Dawn and Twin Star Adventure."},{"id":"am-2","zh":"如果需要特定任務，請在聯盟聊天室提出。","en":"If you need a specific mission, please request it in the alliance chat!"}],"dateEnabled":false},{"id":"twin-star","zh":"雙星冒險","en":"Twin Star Adventure","timeEnabled":false,"sentences":[{"id":"tsa-1","zh":"完成組隊！盡可能找同時上線的隊友。","en":"Form your team! Try to team up with players who are online at the same time."}],"dateEnabled":false},{"id":"canyon-clash","zh":"峽谷會戰","en":"Canyon Clash","timeEnabled":true,"sentences":[{"id":"cc-1","zh":"投票你可以參與的時間。","en":"Vote for the time you can attend!"},{"id":"cc-2","zh":"軍團 1：UTC 14:00；軍團 2：UTC 02:00。","en":"Legion 1: UTC 14:00\nLegion 2: UTC 02:00"},{"id":"cc-3","zh":"投票你有空的時間！","en":"Vote for your available time!"}],"dateEnabled":false},{"id":"foundry-battle","zh":"兵器工廠","en":"Foundry Battle","timeEnabled":true,"sentences":[{"id":"fb-1","zh":"請在可以參加的時段按下參加按鈕。","en":"Please tap Battle Request for the time slot you can attend."},{"id":"fb-2","zh":"軍團 1：UTC 14:00；軍團 2：UTC 02:00。","en":"Legion 1: UTC 14:00\nLegion 2: UTC 02:00"}],"dateEnabled":false},{"id":"heroes-mission","zh":"英雄的使命","en":"Hero's Mission","timeEnabled":false,"sentences":[{"id":"hm-1","zh":"最後一天！","en":"The last day!"}],"dateEnabled":false},{"id":"alliance-showdown","zh":"聯盟大作戰","en":"Alliance Showdown","timeEnabled":false,"sentences":[{"id":"as-1","zh":"我們一樣會分組進行！","en":"We’ll still split into groups!"}],"dateEnabled":false},{"id":"winter-siege","zh":"凜風攻城戰","en":"Winter Siege","timeEnabled":true,"sentences":[{"id":"ws-1","zh":"新活動，我還不知道怎麼玩，哈哈。","en":"No idea how this event works yet lol."},{"id":"ws-2","zh":"星期二 UTC 23:00 是報名截止。連同 Alliance Championship，請待在 PNK 等待報名完成。","en":"Registration ends Tuesday at UTC 23:00.\nPlease stay in PNK until registration is complete, including Alliance Championship."},{"id":"ws-3","zh":"第一階段截止：星期二 UTC 23:00。請待在 PNK，直到所有報名（包含 Alliance Championship）完成。","en":"Phase 1 Deadline: Tuesday UTC 23:00\nStay in PNK until all registrations, including Alliance Championship, are done."}],"dateEnabled":false}]},"vote":{"label":"投票公告","singular":"投票項目","title":"Voting Notice","items":[]},"rule":{"label":"規則公告","singular":"規則","title":"Alliance Rules","items":[]},"governor":{"label":"執政官公告","singular":"公告項目","title":"Governor Announcement","items":[]}};
-const STORAGE_KEY = "wosAnnouncementBuilder.v1";
-const ADMIN_HASH_KEY = "wosAnnouncementAdminHash.v1";
-const ADMIN_SESSION_KEY = "wosAnnouncementAdminSession.v1";
+const DEFAULT_MODULES = {"event":{"label":"活動公告","singular":"活動","title":"Today’s Events","items":[{"id":"crazy-joe","zh":"瘋狂喬伊","en":"Crazy Joe","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"crazy-1","zh":"保持在線！","en":"Please stay online!"}]},{"id":"icefire-prediction","zh":"冰火聯賽","en":"Icefire Prediction","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"icefire-1","zh":"投票截止時間為：UTC 10:00／UTC 16:00／UTC 22:00。今天有 3 次預測。","en":"Prediction deadlines:\nUTC 10:00 / UTC 16:00 / UTC 22:00\nThere are 3 prediction rounds today."},{"id":"icefire-2","zh":"記得報名！","en":"Remember to register!"},{"id":"sentence-22e8cfe0-d93a-4757-badd-a041b1219362","zh":"排行榜點愛心可以拿鑽石","en":"Tap ❤ on the leaderboard for diamonds."}]},{"id":"stronghold-fortress","zh":"堡壘與要塞","en":"Stronghold & Fortress","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"sf-1","zh":"活動時間已加到行事曆，請確認時程並注意時間。","en":"The event times have been added to the calendar.\nPlease check the schedule and pay attention to the times."},{"id":"sf-2","zh":"UTC 14:00 的堡壘會在打熊活動之後進行。","en":"The UTC 14:00 fortress will be after the Bear Trap."},{"id":"sf-3","zh":"兵力上限：60,000。","en":"Troop limit: 60,000"},{"id":"sf-4","zh":"活動時間都在行事曆上，請確認時程！","en":"Event times are on the calendar. Please check the schedule!"}]},{"id":"svs-battle","zh":"SVS－戰爭階段","en":"SVS-Battle Phase","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"svs-1","zh":"記得開防護罩！","en":"Remember to activate your shield!"}]},{"id":"mercenary-prestige","zh":"傭兵榮耀","en":"Mercenary Prestige","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"mp-1","zh":"盡可能分享「求助」，讓盟友拿獎勵。","en":"Please share as many Help Requests as possible so your allies can earn rewards."}]},{"id":"phaethon-captain","zh":"傭兵頭目","en":"Phaethon Captain","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"pc-1","zh":"7/19 UTC 14:30 — Lv. 1–3；7/20 UTC 01:00 — Lv. 4–5。","en":"• 7/19 UTC 14:30 — Lv. 1–3\n• 7/20 UTC 01:00 — Lv. 4–5"},{"id":"sentence-e0a4e214-2985-4770-a1cb-406a17240258","zh":"10/12 UTC14 Lv. 1–5","en":"10/12 UTC14 Lv. 1–5"}]},{"id":"tal","zh":"雪域聯賽（TAL）","en":"TAL","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"tal-1","zh":"國家隊：7/20 UTC 14:00；PNK：7/20 UTC 14:00；記得押注獲勝隊伍！","en":"State Team: 7/20 UTC 14:00\nPNK: 7/20 UTC 14:00\nRemember to bet on the winner!"}]},{"id":"tundra-trading","zh":"雪原貿易戰","en":"Tundra Trading Station","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"tts-1","zh":"交換你喜歡的道具。","en":"Exchange for the items you want."}]},{"id":"tundra-route","zh":"雪原商隊","en":"Tundra Trade Route","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"ttr-1","zh":"協助護送可以得到額外寶箱，善用子帳號！","en":"Help escort convoys to earn extra chests.\nMake good use of your alt accounts!"},{"id":"ttr-2","zh":"派送強大的部隊協助盟友。","en":"Send strong troops to reinforce your allies."}]},{"id":"tundra-trek","zh":"雪原遊歷","en":"Tundra Trek","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"tt-1","zh":"今天有新專家。更新結束後再使用遊歷次數。","en":"A new expert will be available today.\nSave your Tundra Trek attempts until after the update."}]},{"id":"alliance-championship","zh":"聯盟爭霸賽","en":"Alliance Championship","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"ac-1","zh":"往返分盟的成員，記得在 UTC 23:00 之前登錄並待在 PNK。","en":"Members moving between alliances, please register and stay in PNK before UTC 23:00."},{"id":"ac-2","zh":"UTC 12 發送結算獎勵，記得待在 PNK。","en":"Rewards will be sent at UTC 12. Remember to stay in PNK!"},{"id":"ac-3","zh":"記得在有 BUFF 時報名聯盟爭霸賽。","en":"Remember to register for the Alliance Championship while the buff is active."},{"id":"ac-4","zh":"有 BUFF 時報名！","en":"Register while the buff is active!"}]},{"id":"journey-light","zh":"逐光之旅","en":"Journey of Light","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"jl-1","zh":"準時讓飛機起飛，哈哈。","en":"Make sure the plane takes off on time lol."}]},{"id":"frostfive-mine","zh":"燃霜礦場","en":"Frostfive Mine","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"fm-1","zh":"確認凱西的技能是否升級，再進入礦場。","en":"Check whether Kathy’s skill has been upgraded before entering the mine."}]},{"id":"dreamscape-memory","zh":"夢境巡憶","en":"Dreamscape Memory","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"dm-1","zh":"每天完成一次 Dreamscape Fusion。","en":"Complete Dreamscape Fusion once every day."},{"id":"dm-2","zh":"今天是最後一天！","en":"Today is the last day of the event!"}]},{"id":"ka","zh":"KA","en":"BIA #2643","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"ka-1","zh":"請閱讀 Liv 傳送的群組消息。","en":"Please read the group message sent by Liv."},{"id":"sentence-5e0a8a85-56ba-47e0-8859-41ebb7d0e79f","zh":"","en":"No attacks.\nCastle Battle for points.\nTile hits by mutual agreement only."}]},{"id":"alliance-mobilization","zh":"聯盟總動員","en":"Alliance Mobilization","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"am-1","zh":"配合軍備競演、英雄殿堂、黎明的願景完成總動員任務。","en":"Complete Mobilization missions together with Officer Project, Vision of Dawn and Twin Star Adventure."},{"id":"am-2","zh":"如果需要特定任務，請在聯盟聊天室提出。","en":"If you need a specific mission, please request it in the alliance chat!"}]},{"id":"twin-star","zh":"雙星冒險","en":"Twin Star Adventure","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"tsa-1","zh":"完成組隊！盡可能找同時上線的隊友。","en":"Form your team! Try to team up with players who are online at the same time."}]},{"id":"canyon-clash","zh":"峽谷會戰","en":"Canyon Clash","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"cc-1","zh":"投票你可以參與的時間。","en":"Vote for the time you can attend!"},{"id":"cc-2","zh":"軍團 1：UTC 14:00；軍團 2：UTC 02:00。","en":"Legion 1: UTC 14:00\nLegion 2: UTC 02:00"},{"id":"cc-3","zh":"投票你有空的時間！","en":"Vote for your available time!"},{"id":"sentence-de56bc50-e434-4206-9028-fca1dfd47d3e","zh":"若有進出聯盟，請確認自己關於周末兩場活動的參加狀態","en":"If you switch alliances, please check your registration status for both weekend events."}]},{"id":"foundry-battle","zh":"兵器工廠","en":"Foundry Battle","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"fb-1","zh":"請在可以參加的時段按下參加按鈕。","en":"Please tap Battle Request for the time slot you can attend."},{"id":"fb-2","zh":"軍團 1：UTC 14:00；軍團 2：UTC 02:00。","en":"Legion 1: UTC 14:00\nLegion 2: UTC 02:00"}]},{"id":"heroes-mission","zh":"英雄的使命","en":"Hero's Mission","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"hm-1","zh":"最後一天！","en":"The last day!"}]},{"id":"alliance-showdown","zh":"聯盟大作戰","en":"Alliance Showdown","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"as-1","zh":"我們一樣會分組進行！","en":"We’ll still split into groups!"},{"id":"sentence-7d99ff42-f251-45e1-80a5-032c162e6109","zh":"讓我們知道你對於聯盟大作戰的計畫\n留在PNK/去PAX/PnB/自己組隊/補位","en":"Please let us know your plan for upcoming alliance showdown\nI'll stay in PNK/I'll go to PAX/I'll go to PnB/I'll form my own team/fill in"}]},{"id":"activity-19f6fc9c-cfad-4e88-8779-c13e8976ea8b","zh":"冰封的寶藏","en":"Frosty Fortune","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"sentence-64184976-e234-447b-a8ec-7b38871fc2a7","zh":"今天要兌換完所有的玫瑰!","en":"Use all your roses today!"}]},{"id":"winter-siege","zh":"凜風攻城戰","en":"Winter Siege","dateEnabled":false,"timeEnabled":true,"sentences":[{"id":"ws-1","zh":"新活動，我還不知道怎麼玩，哈哈。","en":"No idea how this event works yet lol."},{"id":"ws-2","zh":"星期二 UTC 23:00 是報名截止。連同 Alliance Championship，請待在 PNK 等待報名完成。","en":"Registration ends Tuesday at UTC 23:00.\nPlease stay in PNK until registration is complete, including Alliance Championship."},{"id":"ws-3","zh":"第一階段截止：星期二 UTC 23:00。請待在 PNK，直到所有報名（包含 Alliance Championship）完成。","en":"Phase 1 Deadline: Tuesday UTC 23:00\nStay in PNK until all registrations, including Alliance Championship, are done."}]},{"id":"activity-4b2e8ad6-0850-4fbe-ad0f-518bbf9bbf6c","zh":"除雪小隊","en":"Snowbusters","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"sentence-670e518e-aebf-4444-821f-48da771aa2f0","zh":"最後一天","en":"the last day"},{"id":"sentence-5e1aae1c-73cd-4151-93c1-21ae3d949dbe","zh":"在今天完成到第16關(有島嶼裝飾)","en":"Reach Stage 16 today to get the island decoration!"},{"id":"sentence-5e298e48-f9a4-4c51-bca9-d2aa449e6261","zh":"多餘的燃料(Fuel)可以換成火箭(Rocket V2)","en":"Extra Fuel can be exchanged for Rocket V2."}]},{"id":"activity-0055507e-fd98-47bc-a512-b2f3b1db28de","zh":"禮品碼","en":"Gift Code","dateEnabled":false,"timeEnabled":false,"sentences":[]},{"id":"item-f3dffcc6-2137-4055-a1ec-c336a11cd167","zh":"歡樂大亂鬥","en":"Wild Brawl","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"sentence-0966b1ca-37cc-4b13-8153-e86cb2736059","zh":"有參加霜龍的人盡可能在今天完成活動次數跟分數\n明天會很忙!(還很累)","en":"If you're joining Frostdragon Tyrant, try to finish your attempts and earn your points today!\nTomorrow will be busy (and exhausting)! 😂"}]},{"id":"item-f4a5cd49-a5f9-4cce-8562-dc9507444c9f","zh":"霜龍","en":"Frosdragon Tyrant","dateEnabled":false,"timeEnabled":false,"sentences":[{"id":"sentence-2cded259-b4a2-402a-83f1-43c46b7d930c","zh":"記得給霜龍做冠軍預測！(有兩張預測頁面)","en":"Remember to make your Frostdragon Tyrant champion predictions! (There are 2 prediction pages!)"}]}]},"vote":{"label":"投票公告","singular":"投票項目","title":"Voting Notice","items":[]},"rule":{"label":"規則公告","singular":"規則","title":"Alliance Rules","items":[]},"governor":{"label":"執政官公告","singular":"公告項目","title":"Governor Announcement","items":[]}};
+const STORAGE_KEY = "wosAnnouncementStaticWork.v1";
 const MODULE_ORDER = ["event","vote","rule","governor"];
 const THEME_PRESETS = {
   beige:{name:"米灰",bg:"#f2eee8",panel:"#fbfaf7",panel2:"#f6f3ee",input:"#ffffff",preview:"#f7f4ef",ink:"#3f4542",muted:"#7c817e",line:"#d8d2c9",accent:"#99a89a",accentDeep:"#7f9182",accentSoft:"#eef1ec",dangerBg:"#fff9f8",dangerLine:"#d9bbb7",dangerText:"#8b5c58"},
@@ -309,10 +308,6 @@ const DEFAULT_FONTS={xl:22,section:18,item:16,body:14,note:12};
 const FONT_META={xl:["大標題","網站主標題"],section:["區塊標題","活動公告、總公告、設定"],item:["項目標題","活動名稱、句子重點"],body:["內文","中英文句子、主要內容"],note:["說明文字","日期、提示、輔助文字"]};
 
 let state=loadState();
-let editingItemId=null;
-let editingSentenceId=null;
-let draggedItemId=null;
-let draggedSentenceId=null;
 let settingsDraft=null;
 const $=id=>document.getElementById(id);
 function uid(prefix){if(window.crypto&&crypto.randomUUID)return `${prefix}-${crypto.randomUUID()}`;return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`}
@@ -327,19 +322,10 @@ function defaultState(){
 function normalizeState(raw){
   const base=defaultState();
   if(!raw||typeof raw!=="object")return base;
-  if(Array.isArray(raw.activities)){
-    base.modules.event.items=raw.activities.map(normalizeItem);
-    base.modules.event.title=typeof raw.title==="string"?raw.title:base.modules.event.title;
-    base.modules.event.bullet=typeof raw.bullet==="string"?raw.bullet:base.modules.event.bullet;
-    base.activeItemByModule.event=raw.activeActivityId||base.modules.event.items[0]?.id||null;
-    base.selected=raw.selected&&typeof raw.selected==="object"?raw.selected:{};
-    base.times=raw.times&&typeof raw.times==="object"?raw.times:{};
-    return base;
-  }
   if(raw.modules&&typeof raw.modules==="object"){
     for(const key of MODULE_ORDER){
       const src=raw.modules[key]||{};const d=base.modules[key];
-      d.items=Array.isArray(src.items)?src.items.map(normalizeItem):d.items;
+      // 公開版的 items 永遠使用網站內建資料，不從 LocalStorage 載入。
       d.title=typeof src.title==="string"?src.title:d.title;
       d.bullet=typeof src.bullet==="string"?src.bullet:d.bullet;
       d.announcementText=typeof src.announcementText==="string"?src.announcementText:"";
@@ -359,7 +345,12 @@ function normalizeState(raw){
   return base;
 }
 function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?normalizeState(JSON.parse(raw)):defaultState()}catch(e){return defaultState()}}
-function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));if($("saveMeta"))$("saveMeta").textContent="已儲存於本機"}
+function workSnapshot(){
+  const modules={};
+  for(const key of MODULE_ORDER){const m=state.modules[key];modules[key]={title:m.title,bullet:m.bullet,announcementText:m.announcementText,manualMode:m.manualMode,generatedSnapshot:m.generatedSnapshot}}
+  return {modules,activeModule:state.activeModule,activeItemByModule:state.activeItemByModule,selected:state.selected,times:state.times,dates:state.dates,settings:state.settings};
+}
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(workSnapshot()))}catch(e){}if($("saveMeta"))$("saveMeta").textContent="個人編輯暫存於本機"}
 function currentModule(){return state.modules[state.activeModule]}
 function currentItem(){const m=currentModule();const id=state.activeItemByModule[state.activeModule];return m.items.find(x=>x.id===id)||m.items[0]||null}
 function selectedIds(itemId){const v=state.selected[itemId];return Array.isArray(v)?v:[]}
@@ -368,21 +359,8 @@ function allCurrentIds(){return new Set(currentModule().items.map(x=>x.id))}
 function isEventModule(){return state.activeModule==="event"}
 function articleOf(item){const s=item?.sentences?.[0];return s||null}
 function articleEnglish(item){return String(articleOf(item)?.en||"").trim()}
-function isAdmin(){return sessionStorage.getItem(ADMIN_SESSION_KEY)==="1"}
-function hasAdminPassword(){return Boolean(localStorage.getItem(ADMIN_HASH_KEY))}
-function requireAdmin(){if(isAdmin())return true;toast("請先登入管理者模式");openAdminDialog();return false}
-async function hashPassword(text){
-  if(window.crypto?.subtle){const data=new TextEncoder().encode(text);const digest=await crypto.subtle.digest("SHA-256",data);return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("")}
-  let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}return `fallback-${(h>>>0).toString(16)}`
-}
-function openAdminDialog(){
-  if(isAdmin()){sessionStorage.removeItem(ADMIN_SESSION_KEY);renderAll();toast("已登出管理者模式");return}
-  const setup=!hasAdminPassword();$("adminDialogTitle").textContent=setup?"建立本機管理密碼":"管理者登入";$("adminConfirmRow").classList.toggle("hidden",!setup);$("adminSubmitBtn").textContent=setup?"建立並登入":"登入";$("adminPassword").value="";$("adminPasswordConfirm").value="";$("adminPassword").autocomplete=setup?"new-password":"current-password";$("adminDialog").showModal();setTimeout(()=>$("adminPassword").focus(),40)
-}
-function renderAdminState(){
-  const admin=isAdmin();const btn=$("adminBtn");btn.textContent=admin?"🔓 管理者 · 登出":"🔒 管理者登入";btn.classList.toggle("admin-active",admin);
-  $("addItemBtn").classList.toggle("hidden",!admin);$("importBtn").classList.toggle("hidden",!admin);$("resetBtn").classList.toggle("hidden",!admin);$("clearDataBtn").classList.toggle("hidden",!admin);
-}
+function isAdmin(){return false}
+function requireAdmin(){return false}
 
 function applySettings(){
   const theme=THEME_PRESETS[state.settings.theme]||THEME_PRESETS.beige;const root=document.documentElement;
@@ -392,57 +370,48 @@ function applySettings(){
   root.style.setProperty("--sidebar-width",`${state.settings.sidebarWidth||300}px`);
 }
 function ensureActiveItem(){const m=currentModule();const id=state.activeItemByModule[state.activeModule];if(!m.items.some(x=>x.id===id))state.activeItemByModule[state.activeModule]=m.items[0]?.id||null}
-function renderAll(){ensureActiveItem();applySettings();renderAdminState();renderModuleNav();renderItemList();renderLibrary();renderPreviewPanel();}
+function renderAll(){ensureActiveItem();applySettings();renderModuleNav();renderItemList();renderLibrary();renderPreviewPanel();}
 function renderModuleNav(){const nav=$("moduleNav");nav.innerHTML="";for(const key of MODULE_ORDER){const m=state.modules[key];const b=document.createElement("button");b.type="button";b.className="module-tab"+(key===state.activeModule?" active":"");b.textContent=m.label;b.addEventListener("click",()=>{state.activeModule=key;ensureActiveItem();saveState();renderAll()});nav.appendChild(b)}}
 function renderItemList(){
-  const m=currentModule();$("listHeading").textContent=`${m.label.replace("公告","")}列表`;$("itemCount").textContent=`${m.items.length} 個${m.singular}`;$("addItemBtn").textContent=`＋${m.singular}`;
+  const m=currentModule();$("listHeading").textContent=`${m.label.replace("公告","")}列表`;$("itemCount").textContent=`${m.items.length} 個${m.singular}`;
   const root=$("itemList");root.innerHTML="";
-  if(!m.items.length){const e=document.createElement("div");e.className="empty";e.textContent=`尚未建立${m.singular}`;root.appendChild(e);return}
+  if(!m.items.length){const e=document.createElement("div");e.className="empty";e.textContent=`目前尚無${m.singular}內容`;root.appendChild(e);return}
   const active=state.activeItemByModule[state.activeModule];
   m.items.forEach(item=>{
-    const row=document.createElement("div");row.className="item-row"+(item.id===active?" active":"")+(!isAdmin()?" viewer-layout":"");row.draggable=isAdmin();row.dataset.id=item.id;
-    const drag=document.createElement("div");drag.className="drag";drag.textContent="≡";drag.title="拖曳排序";drag.classList.toggle("hidden",!isAdmin());
+    const row=document.createElement("div");row.className="item-row viewer-layout"+(item.id===active?" active":"");row.dataset.id=item.id;
     const main=document.createElement("div");main.className="item-main";const en=document.createElement("div");en.className="item-en";en.textContent=item.en;const zh=document.createElement("div");zh.className="item-zh";zh.textContent=item.zh||"—";main.append(en,zh);main.addEventListener("click",()=>{state.activeItemByModule[state.activeModule]=item.id;if(!isEventModule()){m.announcementText=articleEnglish(item);m.manualMode=false;m.generatedSnapshot=m.announcementText}saveState();renderItemList();renderLibrary();renderPreviewPanel()});
     const badge=document.createElement("div");if(isEventModule()){const n=selectedCount(item.id);if(n>0){badge.className="badge";badge.textContent=n}}
-    row.append(drag,main,badge);
-    row.addEventListener("dragstart",()=>{draggedItemId=item.id;row.classList.add("dragging")});row.addEventListener("dragend",()=>{draggedItemId=null;row.classList.remove("dragging");document.querySelectorAll(".drop-target").forEach(el=>el.classList.remove("drop-target"))});
-    row.addEventListener("dragover",e=>{if(!draggedItemId||draggedItemId===item.id)return;e.preventDefault();row.classList.add("drop-target")});row.addEventListener("dragleave",()=>row.classList.remove("drop-target"));row.addEventListener("drop",e=>{e.preventDefault();row.classList.remove("drop-target");moveItem(draggedItemId,item.id)});
-    root.appendChild(row);
+    row.append(main,badge);root.appendChild(row);
   });
 }
-function moveItem(sourceId,targetId){if(!requireAdmin())return;if(!sourceId||sourceId===targetId)return;const items=currentModule().items;const from=items.findIndex(x=>x.id===sourceId),to=items.findIndex(x=>x.id===targetId);if(from<0||to<0)return;const [m]=items.splice(from,1);items.splice(to,0,m);dataChanged("順序已更新")}
 function renderLibrary(){
   const root=$("libraryContent");root.innerHTML="";const item=currentItem();const m=currentModule();
   $("libraryHeading").textContent=isEventModule()?"句子選擇":"文章內容";
   $("librarySubtle").textContent=isEventModule()?"中文只供閱讀；總公告只輸出英文。":"單篇公告模式 · 點左側文章即可整篇載入總公告。";
-  if(!item){const e=document.createElement("div");e.className="empty";e.innerHTML=`尚未建立${m.singular}。<br>請先按左側「＋${m.singular}」。`;root.appendChild(e);return}
-  const titleRow=document.createElement("div");titleRow.className="item-title-row";const box=document.createElement("div");const h=document.createElement("h3");h.textContent=item.en;const zh=document.createElement("div");zh.className="zh-name";zh.textContent=item.zh||"未填中文名稱";box.append(h,zh);
-  const actions=document.createElement("div");actions.className="row-actions";if(isAdmin()){const eb=button(`編輯${m.singular}`,"btn small");eb.addEventListener("click",()=>openItemDialog(item.id));const db=button(`刪除${m.singular}`,"btn small danger");db.addEventListener("click",()=>deleteItem(item.id));actions.append(eb,db)}else{const tag=document.createElement("span");tag.className="viewer-tag";tag.textContent="🔒 唯讀";actions.appendChild(tag)}titleRow.append(box,actions);root.appendChild(titleRow);
+  if(!item){const e=document.createElement("div");e.className="empty";e.textContent=`目前尚無${m.singular}內容。`;root.appendChild(e);return}
+  const titleRow=document.createElement("div");titleRow.className="item-title-row";const box=document.createElement("div");const h=document.createElement("h3");h.textContent=item.en;const zh=document.createElement("div");zh.className="zh-name";zh.textContent=item.zh||"未填中文名稱";box.append(h,zh);const tag=document.createElement("span");tag.className="viewer-tag";tag.textContent="網站固定內容";titleRow.append(box,tag);root.appendChild(titleRow);
   if(!isEventModule()){
     const article=articleOf(item);const card=document.createElement("div");card.className="article-card";
     if(article){
       const zb=document.createElement("div");zb.className="article-block";zb.innerHTML=`<div class="article-label">中文對照（只供閱讀）</div><div class="article-text"></div>`;zb.querySelector(".article-text").textContent=article.zh||"（無中文內容）";
       const ebk=document.createElement("div");ebk.className="article-block";ebk.innerHTML=`<div class="article-label">英文公告（整篇輸出）</div><div class="article-text en"></div>`;ebk.querySelector(".article-text").textContent=article.en||"（無英文內容）";card.append(zb,ebk);
-    }else{const e=document.createElement("div");e.className="empty";e.style.margin="14px";e.textContent="這篇公告尚未建立文章內容。";card.appendChild(e)}
+    }else{const e=document.createElement("div");e.className="empty";e.style.margin="14px";e.textContent="這篇公告目前沒有文章內容。";card.appendChild(e)}
     root.appendChild(card);
-    const aa=document.createElement("div");aa.className="article-actions";const load=button("載入整篇到總公告","btn");load.addEventListener("click",()=>{m.announcementText=articleEnglish(item);m.manualMode=false;m.generatedSnapshot=m.announcementText;saveState();renderPreviewPanel();toast("已載入整篇公告")});if(isAdmin()){const edit=button(article?"編輯文章":"＋新增文章","btn primary");edit.addEventListener("click",()=>openSentenceDialog(article?.id||null));aa.append(edit)}aa.append(load);if(article&&isAdmin()){const del=button("刪除文章內容","btn danger");del.addEventListener("click",()=>deleteSentence(article.id));aa.appendChild(del)}root.appendChild(aa);
-    return;
+    const aa=document.createElement("div");aa.className="article-actions";const load=button("載入整篇到總公告","btn primary");load.addEventListener("click",()=>{m.announcementText=articleEnglish(item);m.manualMode=false;m.generatedSnapshot=m.announcementText;saveState();renderPreviewPanel();toast("已載入整篇公告")});aa.append(load);root.appendChild(aa);return;
   }
   if(item.dateEnabled||item.timeEnabled){const grid=document.createElement("div");grid.className="schedule-grid";
     if(item.dateEnabled){const b=document.createElement("div");b.className="schedule-box";const l=document.createElement("label");l.textContent="本次日期（可留白）";const inp=document.createElement("input");inp.className="input";inp.placeholder="例如：Oct 11 / 10/11";inp.value=state.dates[item.id]||"";inp.addEventListener("input",()=>{state.dates[item.id]=inp.value;generatedDataChanged()});b.append(l,inp);grid.appendChild(b)}
     if(item.timeEnabled){const b=document.createElement("div");b.className="schedule-box";const l=document.createElement("label");l.textContent="本次時間（可留白）";const inp=document.createElement("input");inp.className="input";inp.placeholder="例如：UTC 14";inp.value=state.times[item.id]||"";inp.addEventListener("input",()=>{state.times[item.id]=inp.value;generatedDataChanged()});b.append(l,inp);grid.appendChild(b)}
     root.appendChild(grid)
   }
-  const toolbar=document.createElement("div");toolbar.className="sentence-toolbar";const label=document.createElement("div");label.className="label";label.textContent=isAdmin()?`${item.sentences.length} 句 · 拖曳 ≡ 可調整句子順序`:`${item.sentences.length} 句`;const tools=document.createElement("div");tools.className="row-actions";const all=item.sentences.map(s=>s.id);const fully=all.length&&all.every(id=>selectedIds(item.id).includes(id));const tb=button(fully?"全部取消":"全部選取","btn small");tb.addEventListener("click",()=>toggleAllSentences(item.id));tools.append(tb);if(isAdmin()){const add=button("＋新增句子","btn small primary");add.addEventListener("click",()=>openSentenceDialog());tools.append(add)}toolbar.append(label,tools);root.appendChild(toolbar);
+  const toolbar=document.createElement("div");toolbar.className="sentence-toolbar";const label=document.createElement("div");label.className="label";label.textContent=`${item.sentences.length} 句`;const tools=document.createElement("div");tools.className="row-actions";const all=item.sentences.map(s=>s.id);const fully=all.length&&all.every(id=>selectedIds(item.id).includes(id));const tb=button(fully?"全部取消":"全部選取","btn small");tb.addEventListener("click",()=>toggleAllSentences(item.id));tools.append(tb);toolbar.append(label,tools);root.appendChild(toolbar);
   const list=document.createElement("div");list.className="sentence-list";
-  if(!item.sentences.length){const e=document.createElement("div");e.className="empty";e.textContent="這個活動還沒有句子。";list.appendChild(e)}else item.sentences.forEach(s=>{
-    const selected=selectedIds(item.id).includes(s.id);const card=document.createElement("div");card.className="sentence-card"+(selected?" selected":"")+(!isAdmin()?" viewer-layout":"");card.draggable=isAdmin();card.dataset.id=s.id;
-    const drag=document.createElement("div");drag.className="drag";drag.textContent="≡";drag.title="拖曳排序";drag.classList.toggle("hidden",!isAdmin());const body=document.createElement("div");body.className="sentence-body";const z=document.createElement("div");z.className="sentence-zh";z.textContent=s.zh||"（無中文內容）";const en=document.createElement("div");en.className="sentence-en";en.textContent=s.en||"（無英文內容）";body.append(z,en);body.addEventListener("click",()=>toggleSentence(item.id,s.id));
-    const st=document.createElement("div");st.className="sentence-tools";const ck=document.createElement("input");ck.type="checkbox";ck.className="check";ck.checked=selected;ck.title="加入總公告";ck.addEventListener("change",()=>toggleSentence(item.id,s.id));st.append(ck);if(isAdmin()){const edit=document.createElement("button");edit.type="button";edit.className="icon-btn";edit.textContent="✎";edit.title="編輯句子";edit.addEventListener("click",e=>{e.stopPropagation();openSentenceDialog(s.id)});const del=document.createElement("button");del.type="button";del.className="icon-btn";del.textContent="×";del.title="刪除句子";del.addEventListener("click",e=>{e.stopPropagation();deleteSentence(s.id)});st.append(edit,del)}card.append(drag,body,st);
-    card.addEventListener("dragstart",()=>{draggedSentenceId=s.id;card.classList.add("dragging")});card.addEventListener("dragend",()=>{draggedSentenceId=null;card.classList.remove("dragging");document.querySelectorAll(".drop-target").forEach(el=>el.classList.remove("drop-target"))});card.addEventListener("dragover",e=>{if(!draggedSentenceId||draggedSentenceId===s.id)return;e.preventDefault();card.classList.add("drop-target")});card.addEventListener("dragleave",()=>card.classList.remove("drop-target"));card.addEventListener("drop",e=>{e.preventDefault();card.classList.remove("drop-target");moveSentence(draggedSentenceId,s.id)});list.appendChild(card);
+  if(!item.sentences.length){const e=document.createElement("div");e.className="empty";e.textContent="這個活動目前沒有句子。";list.appendChild(e)}else item.sentences.forEach(s=>{
+    const selected=selectedIds(item.id).includes(s.id);const card=document.createElement("div");card.className="sentence-card viewer-layout"+(selected?" selected":"");card.dataset.id=s.id;
+    const body=document.createElement("div");body.className="sentence-body";const z=document.createElement("div");z.className="sentence-zh";z.textContent=s.zh||"（無中文內容）";const en=document.createElement("div");en.className="sentence-en";en.textContent=s.en||"（無英文內容）";body.append(z,en);body.addEventListener("click",()=>toggleSentence(item.id,s.id));
+    const st=document.createElement("div");st.className="sentence-tools";const ck=document.createElement("input");ck.type="checkbox";ck.className="check";ck.checked=selected;ck.title="加入總公告";ck.addEventListener("change",()=>toggleSentence(item.id,s.id));st.append(ck);card.append(body,st);list.appendChild(card);
   });root.appendChild(list);
 }
-function moveSentence(sourceId,targetId){if(!requireAdmin())return;const item=currentItem();if(!item||!sourceId||sourceId===targetId)return;const from=item.sentences.findIndex(s=>s.id===sourceId),to=item.sentences.findIndex(s=>s.id===targetId);if(from<0||to<0)return;const [m]=item.sentences.splice(from,1);item.sentences.splice(to,0,m);dataChanged("句子順序已更新")}
 function toggleSentence(itemId,sentenceId){const cur=selectedIds(itemId).slice();const i=cur.indexOf(sentenceId);if(i>=0)cur.splice(i,1);else cur.push(sentenceId);state.selected[itemId]=cur;dataChanged()}
 function toggleAllSentences(itemId){const item=currentModule().items.find(x=>x.id===itemId);if(!item)return;const all=item.sentences.map(s=>s.id);const fully=all.length&&all.every(id=>selectedIds(itemId).includes(id));state.selected[itemId]=fully?[]:all;dataChanged()}
 function buildAnnouncement(){const m=currentModule();if(!isEventModule())return articleEnglish(currentItem());const blocks=[];for(const item of m.items){const chosen=new Set(selectedIds(item.id));const lines=item.sentences.filter(s=>chosen.has(s.id)&&s.en.trim()).map(s=>s.en.trim());if(!lines.length)continue;let header=`${m.bullet||""}${item.en.trim()||"Untitled"}`;const parts=[];const d=item.dateEnabled?String(state.dates[item.id]||"").trim():"";const t=item.timeEnabled?String(state.times[item.id]||"").trim():"";if(d)parts.push(d);if(t)parts.push(t);if(parts.length)header+=` — ${parts.join(" — ")}`;blocks.push(`${header}\n${lines.join("\n")}`)}const title=m.title.trim();if(title&&blocks.length)return `${title}\n\n${blocks.join("\n\n")}`;if(title)return title;return blocks.join("\n\n")}
@@ -463,14 +432,6 @@ function dataChanged(message){syncGeneratedAnnouncement();saveState();renderAll(
 function renderPreviewPanel(){const m=currentModule();const eventMode=isEventModule();$("previewControls").classList.toggle("hidden",!eventMode);$("titleInput").value=m.title;$("bulletSelect").value=m.bullet;const generated=buildAnnouncement();if(typeof m.generatedSnapshot!=="string")m.generatedSnapshot=generated;if(!m.manualMode&&m.announcementText!==generated){m.announcementText=generated;m.generatedSnapshot=generated;saveState()}$("previewEditor").value=m.announcementText||"";$("previewEditor").placeholder=eventMode?"尚未選擇公告句子":"點左側文章即可整篇載入";$("manualNote").textContent=eventMode?"已手動修改：之後勾選／取消句子、日期與時間仍會同步，系統會盡量保留你額外修改的文字。若想完全回到系統格式，可按下方重新產生。":"你已手動編輯總公告。若要恢復目前文章原文，按「重新載入此篇文章」。";$("manualNote").classList.toggle("show",m.manualMode);if(eventMode){const count=m.items.filter(x=>selectedCount(x.id)>0).length;$("selectedMeta").textContent=`已選 ${count} 個${m.singular}`;$("refreshAnnouncementBtn").textContent="↻ 完全依選擇重新產生"}else{$("selectedMeta").textContent=currentItem()?`目前文章：${currentItem().en}`:"尚未選擇文章";$("refreshAnnouncementBtn").textContent="↻ 重新載入此篇文章"}}
 function button(text,cls){const b=document.createElement("button");b.type="button";b.className=cls;b.textContent=text;return b}
 
-function openItemDialog(id=null){if(!requireAdmin())return;editingItemId=id;const m=currentModule();const item=id?m.items.find(x=>x.id===id):null;const eventMode=isEventModule();$("itemDialogTitle").textContent=item?`編輯${m.singular}`:`新增${m.singular}`;$("itemEnLabel").textContent=`英文${m.singular}名稱${eventMode?"（公告會使用這個名稱）":"（列表辨識用）"}`;$("itemZhLabel").textContent=`中文${m.singular}名稱`;$("itemEn").value=item?.en||"";$("itemZh").value=item?.zh||"";$("itemDateEnabled").checked=eventMode&&Boolean(item?.dateEnabled);$("itemTimeEnabled").checked=eventMode&&Boolean(item?.timeEnabled);$("dateOptionRow").classList.toggle("hidden",!eventMode);$("timeOptionRow").classList.toggle("hidden",!eventMode);$("scheduleHelp").classList.toggle("hidden",!eventMode);$("itemDialog").showModal();setTimeout(()=>$("itemEn").focus(),40)}
-$("itemForm").addEventListener("submit",e=>{e.preventDefault();if(!requireAdmin())return;const m=currentModule();const eventMode=isEventModule();const en=$("itemEn").value.trim(),zh=$("itemZh").value.trim(),dateEnabled=eventMode&&$("itemDateEnabled").checked,timeEnabled=eventMode&&$("itemTimeEnabled").checked;if(!en)return;if(editingItemId){const item=m.items.find(x=>x.id===editingItemId);if(item){item.en=en;item.zh=zh;item.dateEnabled=dateEnabled;item.timeEnabled=timeEnabled}}else{const id=uid("item");m.items.push({id,zh,en,dateEnabled,timeEnabled,sentences:[]});state.activeItemByModule[state.activeModule]=id;if(!eventMode){m.announcementText="";m.manualMode=false}}$("itemDialog").close();editingItemId=null;dataChanged(`${m.singular}已儲存`)})
-function deleteItem(id){if(!requireAdmin())return;const m=currentModule();const item=m.items.find(x=>x.id===id);if(!item)return;if(!confirm(`確定刪除「${item.en}」？\n此項目內的內容也會一起刪除。`))return;m.items=m.items.filter(x=>x.id!==id);delete state.selected[id];delete state.times[id];delete state.dates[id];if(state.activeItemByModule[state.activeModule]===id)state.activeItemByModule[state.activeModule]=m.items[0]?.id||null;dataChanged(`${m.singular}已刪除`)}
-function openSentenceDialog(id=null){if(!requireAdmin())return;const item=currentItem();if(!item)return;const eventMode=isEventModule();const existing=eventMode?(id?item.sentences.find(x=>x.id===id):null):articleOf(item);editingSentenceId=existing?.id||null;$("sentenceDialogTitle").textContent=eventMode?(existing?"編輯句子":"新增句子"):(existing?"編輯文章":"新增文章");$("sentenceZhLabel").textContent=eventMode?"中文內容（只供閱讀）":"中文文章（只供閱讀）";$("sentenceEnLabel").textContent=eventMode?"英文內容（會輸出到公告）":"英文文章（會整篇輸出到公告）";$("sentenceZh").value=existing?.zh||"";$("sentenceEn").value=existing?.en||"";$("sentenceDialog").showModal();setTimeout(()=>$("sentenceZh").focus(),40)}
-$("sentenceForm").addEventListener("submit",e=>{e.preventDefault();if(!requireAdmin())return;const item=currentItem();if(!item)return;const eventMode=isEventModule();const zh=$("sentenceZh").value.trim(),en=$("sentenceEn").value.trim();if(!en)return;if(eventMode){if(editingSentenceId){const s=item.sentences.find(x=>x.id===editingSentenceId);if(s){s.zh=zh;s.en=en}}else item.sentences.push({id:uid("sentence"),zh,en})}else{const id=editingSentenceId||uid("article");item.sentences=[{id,zh,en}];const m=currentModule();m.announcementText=en;m.manualMode=false;m.generatedSnapshot=en}$("sentenceDialog").close();editingSentenceId=null;dataChanged(eventMode?"句子已儲存":"文章已儲存")})
-function deleteSentence(id){if(!requireAdmin())return;const item=currentItem();const s=item?.sentences.find(x=>x.id===id);if(!item||!s)return;const eventMode=isEventModule();if(!confirm(eventMode?"確定刪除這句內容？":"確定刪除這篇文章內容？"))return;item.sentences=eventMode?item.sentences.filter(x=>x.id!==id):[];if(eventMode)state.selected[item.id]=selectedIds(item.id).filter(x=>x!==id);else{const m=currentModule();m.announcementText="";m.manualMode=false;m.generatedSnapshot=""}dataChanged(eventMode?"句子已刪除":"文章內容已刪除")}
-
-$("addItemBtn").addEventListener("click",()=>openItemDialog());
 $("titleInput").addEventListener("input",e=>{const m=currentModule();m.title=e.target.value;generatedDataChanged()});
 $("bulletSelect").addEventListener("change",e=>{const m=currentModule();m.bullet=e.target.value;generatedDataChanged()});
 $("previewEditor").addEventListener("input",e=>{const m=currentModule();m.announcementText=e.target.value;m.manualMode=true;saveState();$("manualNote").classList.add("show")});
@@ -478,24 +439,13 @@ $("refreshAnnouncementBtn").addEventListener("click",()=>{const m=currentModule(
 $("clearAnnouncementBtn").addEventListener("click",()=>{const m=currentModule();if(!isEventModule()){if(m.announcementText&&!confirm("清空右側總公告？原本文章內容不會刪除。"))return;m.announcementText="";m.manualMode=true;saveState();renderPreviewPanel();toast("總公告已清空");return}const ids=new Set(m.items.map(x=>x.id));const hasAny=m.announcementText||m.items.some(x=>selectedCount(x.id)>0);if(hasAny&&!confirm(`清空目前「${m.label}」的已選句子、日期、時間與總公告？`))return;for(const id of ids){delete state.selected[id];delete state.times[id];delete state.dates[id]}m.announcementText="";m.manualMode=false;m.generatedSnapshot=buildAnnouncement();saveState();renderAll();toast("本分類公告已清空")});
 $("copyBtn").addEventListener("click",async()=>{const text=currentModule().announcementText.trim();if(!text){toast("目前沒有可複製的公告");return}let ok=false;try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);ok=true}}catch(e){}if(!ok){const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();try{ok=document.execCommand("copy")}catch(e){}ta.remove()}toast(ok?"公告已複製":"無法自動複製，請手動選取總公告文字")});
 
-$("adminBtn").addEventListener("click",openAdminDialog);
-$("adminForm").addEventListener("submit",async e=>{
-  e.preventDefault();const password=$("adminPassword").value;const setup=!hasAdminPassword();if(password.length<6){alert("管理密碼至少需要 6 個字元。");return}
-  const hashed=await hashPassword(password);
-  if(setup){if(password!==$("adminPasswordConfirm").value){alert("兩次輸入的密碼不同。");return}localStorage.setItem(ADMIN_HASH_KEY,hashed);sessionStorage.setItem(ADMIN_SESSION_KEY,"1");$("adminDialog").close();renderAll();toast("已建立本機管理密碼並登入");return}
-  if(hashed!==localStorage.getItem(ADMIN_HASH_KEY)){alert("密碼不正確。");return}sessionStorage.setItem(ADMIN_SESSION_KEY,"1");$("adminDialog").close();renderAll();toast("管理者登入成功")
-});
 function openSettings(){settingsDraft=clone(state.settings);renderSettingsDialog();$("settingsDialog").showModal()}
 function renderSettingsDialog(){const tg=$("themeGrid");tg.innerHTML="";for(const [key,t] of Object.entries(THEME_PRESETS)){const b=document.createElement("button");b.type="button";b.className="theme-option"+(settingsDraft.theme===key?" selected":"");b.innerHTML=`<div class="theme-swatch"><span style="background:${t.bg}"></span><span style="background:${t.panel}"></span><span style="background:${t.accent}"></span></div><strong>${t.name}</strong>`;b.addEventListener("click",()=>{settingsDraft.theme=key;renderSettingsDialog()});tg.appendChild(b)}const fg=$("fontGrid");fg.innerHTML="";for(const key of Object.keys(DEFAULT_FONTS)){const [name,use]=FONT_META[key];const row=document.createElement("div");row.className="font-row";const info=document.createElement("div");info.innerHTML=`<div class="font-name">${name}</div><div class="font-use">${use}</div>`;const wrap=document.createElement("div");wrap.className="number-input";const inp=document.createElement("input");inp.className="input";inp.type="number";inp.min="10";inp.max="36";inp.step="1";inp.value=settingsDraft.fonts[key];inp.addEventListener("input",()=>{const n=Number(inp.value);if(Number.isFinite(n))settingsDraft.fonts[key]=Math.min(36,Math.max(10,n))});const unit=document.createElement("span");unit.className="subtle";unit.textContent="px";wrap.append(inp,unit);row.append(info,wrap);fg.appendChild(row)}}
 $("settingsBtn").addEventListener("click",openSettings);$("resetFontsBtn").addEventListener("click",()=>{settingsDraft.fonts=clone(DEFAULT_FONTS);renderSettingsDialog()});
 $("settingsForm").addEventListener("submit",e=>{e.preventDefault();state.settings=normalizeState({settings:settingsDraft}).settings;applySettings();saveState();$("settingsDialog").close();toast("外觀設定已套用")});
 
-$("exportBtn").addEventListener("click",()=>{const payload={version:"2.2.1",exportedAt:new Date().toISOString(),data:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`WOS公告備份_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast("備份已匯出")});
-$("importBtn").addEventListener("click",()=>{if(requireAdmin())$("importFile").click()});$("importFile").addEventListener("change",async e=>{if(!requireAdmin())return;const file=e.target.files?.[0];e.target.value="";if(!file)return;try{const text=await file.text();const parsed=JSON.parse(text);const data=parsed.data||parsed;if(!confirm("匯入備份會取代目前資料，確定繼續？"))return;state=normalizeState(data);saveState();renderAll();toast("備份已匯入")}catch(err){alert("這不是有效的 WOS 公告備份檔。")}});
-$("resetBtn").addEventListener("click",()=>{if(!requireAdmin())return;if(!confirm("還原為預設資料？目前修改會被取代。"))return;state=defaultState();saveState();renderAll();toast("已還原預設資料")});
-$("clearDataBtn").addEventListener("click",()=>{if(!requireAdmin())return;if(!confirm("確定清空四個公告分類的所有項目與內容？建議先匯出備份。"))return;const s=defaultState();for(const key of MODULE_ORDER)s.modules[key].items=[];s.activeItemByModule={event:null,vote:null,rule:null,governor:null};s.settings=clone(state.settings);state=s;saveState();renderAll();toast("所有資料已清空")});
 
-// 可調整左側列表寬度：只影響左欄與中間欄，右側總公告固定 410px。
+// 可調整左側列表寬度：每位使用者可自行調整；只影響左欄與中間欄，右側總公告固定 410px。
 (function initColumnResizer(){
   const handle=$("columnResizer");if(!handle)return;let active=false;
   const clampWidth=(clientX)=>{const layout=document.querySelector(".layout");if(!layout)return state.settings.sidebarWidth||300;const rect=layout.getBoundingClientRect();const previewWidth=410,handleWidth=8,gaps=30,minMiddle=360;const maxBySpace=Math.max(220,rect.width-previewWidth-handleWidth-gaps-minMiddle);return Math.round(Math.min(Math.min(520,maxBySpace),Math.max(220,clientX-rect.left)))};
@@ -506,6 +456,65 @@ $("clearDataBtn").addEventListener("click",()=>{if(!requireAdmin())return;if(!co
 })();
 document.querySelectorAll("[data-close-dialog]").forEach(btn=>btn.addEventListener("click",()=>$(btn.dataset.closeDialog).close()));document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{const r=d.getBoundingClientRect();const inside=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;if(!inside)d.close()}));
 let toastTimer;function toast(message){const t=$("toast");t.textContent=message;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1800)}
+
+function initPixelHero(){
+  const c=$("pixelHero");
+  if(!c)return;
+  const x=c.getContext("2d");
+  x.imageSmoothingEnabled=false;
+  const W=1280,H=240;
+  let mode="night",snow=true,fire=true,t=0;
+  const r=(px,py,w,h,color)=>{x.fillStyle=color;x.fillRect(Math.round(px),Math.round(py),Math.round(w),Math.round(h))};
+  const poly=(points,color)=>{x.fillStyle=color;x.beginPath();x.moveTo(...points[0]);points.slice(1).forEach(p=>x.lineTo(...p));x.closePath();x.fill()};
+  const rand=n=>{let z=Math.sin(n*127.1+78.233)*43758.5453;return z-Math.floor(z)};
+  function pine(px,py,s=1){x.save();x.translate(px,py);x.scale(s,s);r(-2,-1,4,15,'#283c42');poly([[-16,0],[0,-34],[16,0]],'#142f3b');poly([[-15,-8],[0,-44],[15,-8]],'#215061');poly([[-12,-16],[0,-51],[12,-16]],'#2e6170');r(-7,-33,14,3,'#aacbd6');r(-10,-19,12,3,'#c1d8df');r(2,-42,5,2,'#d8e5e9');r(-5,-9,16,2,'#91bac7');x.restore()}
+  function house(px,py,s=1,variant=0){x.save();x.translate(px,py);x.scale(s,s);r(-19,-23,38,25,'#142d40');r(-17,-21,34,23,variant?'#547084':'#405f70');r(-19,-13,38,3,'#2f4759');poly([[-24,-22],[0,-45],[24,-22]],'#1c3346');poly([[-24,-24],[0,-49],[24,-24]],'#c0d9e3');poly([[-17,-27],[0,-43],[17,-27]],'#e8eef0');r(-5,-13,11,15,'#263a4a');r(-2,-10,5,8,fire?'#ecad5d':'#a8c9d8');r(-15,-15,7,7,'#172d3e');r(-13,-13,3,3,fire?'#ffca7c':'#92bacc');r(10,-15,6,7,'#172d3e');r(12,-13,2,3,fire?'#ffca7c':'#92bacc');r(-22,1,46,3,'#dbe8ec');x.restore()}
+  function furnace(px,py,s=1){x.save();x.translate(px,py);x.scale(s,s);r(-59,14,121,9,'#597d91');r(-51,20,104,4,'#bed3dc');r(-51,-34,32,50,'#263d50');r(21,-34,32,50,'#263d50');r(-48,-37,26,7,'#7897a5');r(24,-37,26,7,'#7897a5');r(-55,-44,38,7,'#d9e4e9');r(19,-44,38,7,'#d9e4e9');r(-40,-76,13,35,'#344b5b');r(-43,-79,19,8,'#889da7');r(-42,-82,17,4,'#e3eaed');r(31,-76,13,35,'#344b5b');r(28,-79,19,8,'#889da7');r(29,-82,17,4,'#e3eaed');r(-23,-87,48,103,'#263d50');r(-19,-84,40,96,'#587386');r(-26,-94,54,12,'#a2b9c3');r(-23,-98,48,5,'#e6edf0');r(-17,-113,36,17,'#4e697c');r(-21,-116,44,7,'#cddfe6');r(-10,-124,24,11,'#5a7f92');r(-14,-127,32,5,'#e2edf0');r(-12,-77,28,75,'#192d3c');r(-9,-74,22,70,fire?'#9b3f2a':'#436171');r(-7,-70,18,64,fire?'#db6b30':'#6f93a2');r(-3,-64,10,55,fire?'#ffa644':'#8daab6');r(0,-51,5,40,fire?'#ffe69c':'#afc8d2');[-68,-42,-17].forEach(yy=>{r(-24,yy,52,7,'#233a4e');r(-26,yy,54,3,'#b4c7d0');r(-20,yy+5,46,2,'#6c8999')});for(let side of [-1,1]){let ox=side<0?-44:29;for(let yy of [-24,-10,4]){r(ox,yy,10,8,'#132938');r(ox+2,yy+2,6,4,fire?'#f2b66d':'#7da0b1')}}r(-19,3,42,15,'#283e4e');r(-13,0,30,18,'#152b3c');r(-9,5,22,12,fire?'#ec8b42':'#536f80');r(-5,6,14,11,fire?'#ffcb78':'#6b92a4');r(-2,8,7,9,fire?'#fff0b4':'#8ba7b5');r(-60,16,125,4,'#d6e5e9');if(fire){for(let i=0;i<8;i++){let yy=-135-i*9-(t*.24%9);let xx=4+Math.sin(i*1.9+t*.015)*5;r(xx,yy,8+i%3*3,5,i%2?'#7b93a4aa':'#aec6d099')}r(-5,-132,17,6,'#ffb46a')}x.restore()}
+  function draw(){
+    t++;
+    const sx=v=>Math.round(v*W/960);
+    const day=mode==='day';
+    const sky=x.createLinearGradient(0,0,0,150);
+    if(day){sky.addColorStop(0,'#5d9fc2');sky.addColorStop(1,'#bedce7')}else{sky.addColorStop(0,'#07152d');sky.addColorStop(.58,'#153750');sky.addColorStop(1,'#4a7990')}
+    x.fillStyle=sky;x.fillRect(0,0,W,H);
+    if(!day){
+      for(let i=0;i<180;i++){let px=rand(i+1)*W,py=rand(i+170)*112;r(px,py,i%13===0?2:1,i%13===0?2:1,i%4?'#b5d7ee':'#e4f3ff')}
+      r(sx(860),18,18,18,'#d8eafa');r(sx(853),24,18,18,'#102944');
+      x.globalAlpha=.32;
+      poly([[sx(0),42],[sx(80),24],[sx(180),54],[sx(290),18],[sx(400),52],[sx(520),22],[sx(630),54],[sx(760),16],[sx(870),49],[sx(960),20],[W,46],[W,62],[sx(860),71],[sx(720),52],[sx(575),73],[sx(430),47],[sx(280),74],[sx(140),58],[0,61]],'#47bda9');
+      poly([[0,61],[sx(95),40],[sx(210),72],[sx(338),40],[sx(470),76],[sx(600),42],[sx(730),77],[sx(855),41],[sx(960),68],[W,61],[W,81],[sx(840),89],[sx(690),63],[sx(535),88],[sx(390),60],[sx(240),89],[sx(100),71],[0,77]],'#5686ca');
+      x.globalAlpha=1;
+    }else{r(sx(855),22,22,22,'#fff2bb');r(sx(859),26,14,14,'#fffad5')}
+
+    poly([[0,115],[sx(52),74],[sx(110),95],[sx(164),51],[sx(238),106],[sx(304),66],[sx(378),112],[sx(446),58],[sx(523),109],[sx(598),66],[sx(680),114],[sx(758),63],[sx(840),112],[sx(914),60],[sx(960),104],[W,92],[W,174],[0,174]],day?'#7298ad':'#254a65');
+    poly([[0,140],[sx(72),100],[sx(132),130],[sx(201),84],[sx(279),129],[sx(359),92],[sx(437),131],[sx(520),89],[sx(603),132],[sx(684),88],[sx(768),131],[sx(848),89],[sx(926),129],[W,104],[W,185],[0,185]],day?'#9bb8c6':'#37617a');
+    [[sx(150),61,sx(164),51,sx(181),66],[sx(290),80,sx(304),66,sx(322),81],[sx(432),72,sx(446),58,sx(463),74],[sx(596),80,sx(610),66,sx(627),80],[sx(745),71,sx(758),63,sx(774),75],[sx(898),76,sx(914),60,sx(934),78]].forEach(q=>poly([[q[0],q[1]],[q[2],q[3]],[q[4],q[5]]],'#d9e8ed'));
+
+    poly([[0,159],[sx(86),150],[sx(168),160],[sx(248),146],[sx(332),158],[sx(420),145],[sx(510),159],[sx(606),146],[sx(702),159],[sx(802),145],[sx(892),158],[sx(960),148],[W,155],[W,240],[0,240]],'#8fb1c3');
+    poly([[0,178],[sx(70),166],[sx(150),177],[sx(230),160],[sx(315),178],[sx(400),162],[sx(486),177],[sx(575),159],[sx(662),178],[sx(755),161],[sx(845),178],[sx(925),164],[sx(960),173],[W,176],[W,240],[0,240]],'#b7cfd9');
+    poly([[0,202],[sx(90),184],[sx(188),202],[sx(286),183],[sx(385),202],[sx(484),184],[sx(582),202],[sx(681),184],[sx(781),202],[sx(879),184],[sx(960),202],[W,202],[W,240],[0,240]],'#d6e5ea');
+
+    for(let i=0;i<28;i++){let px=sx(10)+i*((W-sx(20))/27);pine(px,181+rand(i+30)*10,.48+rand(i+90)*.28)}
+    [[sx(55),190,.75,1],[sx(120),194,.9,0],[sx(200),188,.72,1],[sx(268),197,.96,0],[sx(365),191,.78,1],[sx(560),195,.9,1],[sx(650),187,.7,0],[sx(742),195,1,1],[sx(840),188,.82,1],[sx(918),193,.8,0]].forEach(v=>house(...v));
+    [sx(38),sx(95),sx(175),sx(255),sx(320),sx(392),sx(548),sx(625),sx(705),sx(782),sx(862),sx(935)].forEach((px,i)=>pine(px,218,.72+(i%3)*.08));
+
+    poly([[sx(456),197],[sx(504),197],[sx(555),240],[sx(405),240]],'#7899aa');poly([[sx(463),198],[sx(497),198],[sx(535),240],[sx(425),240]],'#a9c4d0');
+    for(let i=0;i<8;i++){let yy=201+i*5;r(sx(474)-i*5,yy,14+i*8,1,'#d6e4e9')}
+    furnace(sx(480),205,1.04);
+    r(0,225,sx(130),7,'#e2edf0');r(W-sx(130),226,sx(130),7,'#e2edf0');r(sx(160),223,sx(68),3,'#e4edef');r(sx(725),222,sx(68),3,'#e4edef');r(sx(1020),223,sx(90),3,'#e4edef');
+    if(snow){for(let i=0;i<180;i++){let yy=(rand(i+440)*H+t*(.12+rand(i+903)*.35))%H;let xx=(rand(i+200)*W+Math.sin(t*.012+i)*9+W)%W;r(xx,yy,i%9===0?2:1,i%9===0?2:1,i%3===0?'#ffffffcc':'#daedfaad')}}
+    requestAnimationFrame(draw);
+  }
+  const night=$("heroModeNight"),day=$("heroModeDay"),snowBtn=$("heroSnowBtn"),fireBtn=$("heroFireBtn"),saveBtn=$("heroSaveBtn"),season=$("heroSeasonTag"),heat=$("heroHeatStatus");
+  function setMode(next){mode=next;night.classList.toggle("active",next==='night');day.classList.toggle("active",next==='day');season.textContent=next==='night'?'❄ FROST CITY · -32°C':'☀ FROST CITY · -18°C'}
+  night.addEventListener("click",()=>setMode("night"));
+  day.addEventListener("click",()=>setMode("day"));
+  snowBtn.addEventListener("click",()=>{snow=!snow;snowBtn.classList.toggle("active",snow);snowBtn.textContent='❄ 飄雪 '+(snow?'ON':'OFF')});
+  fireBtn.addEventListener("click",()=>{fire=!fire;fireBtn.classList.toggle("active",fire);fireBtn.textContent='♨ 熔爐 '+(fire?'ON':'OFF');heat.textContent=fire?'燃燒中':'已熄滅'});
+  saveBtn.addEventListener("click",()=>{const out=document.createElement("canvas");out.width=2560;out.height=480;const ox=out.getContext("2d");ox.imageSmoothingEnabled=false;ox.drawImage(c,0,0,out.width,out.height);const a=document.createElement("a");a.download="寒霜啟示錄_8x1.5_互動雪城.png";a.href=out.toDataURL("image/png");a.click()});
+  draw();
+}
+initPixelHero();
 renderAll();
 </script>
 </body>
